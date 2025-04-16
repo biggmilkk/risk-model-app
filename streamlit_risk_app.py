@@ -137,7 +137,7 @@ if st.button("Analyze Scenario"):
                 "Infrastructure & Resource Stability"
             ]
             updated_inputs = []
-            st.subheader("Mapped Risks and Scores (Editable)")
+            st.subheader("Mapped Risks and Scores")
             edited_risks = []
             for i, risk in enumerate(risks):
                 cols = st.columns(5)
@@ -153,8 +153,6 @@ if st.button("Analyze Scenario"):
             df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
             risk_level, guidance = advice_matrix(final_score, tolerance)
             df_summary.index = df_summary.index + 1  # Start numbering from 1
-    st.dataframe(df_summary, use_container_width=True)
-
     # Show initial results after analysis
     st.markdown("**Initial Results:**")
     st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
