@@ -153,17 +153,14 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
 
     updated_inputs = edited_risks
 
-    if st.button("Recalculate", key="recalc1"):
-        df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
-        risk_level, guidance = advice_matrix(final_score, tolerance)
-        st.session_state.recalculated = True
+    
         st.markdown("**Scores:**")
         st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
         st.markdown(f"**Assessed Risk Score (0-100):** {final_score}")
         st.markdown(f"**Risk Level:** {risk_level}")
         st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")
 
-    if 'recalculated' not in st.session_state:
+    
         df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
         risk_level, guidance = advice_matrix(final_score, tolerance)
 
