@@ -117,6 +117,7 @@ def advice_matrix(score: float, tolerance: str):
 
     return risk_level, advice
 
+st.set_page_config(layout="wide")
 st.title("AI-Assisted Risk Model & Advice Generator")
 
 scenario = st.text_area("Enter Threat Scenario")
