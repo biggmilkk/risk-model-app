@@ -53,11 +53,11 @@ Scenario:
 
     Use the following logic when assigning **Likelihood**:
 
-    - 0 (Unlikely): Use for risks that are speculative, rare, or expressed with weak/moderate conditional language (e.g., “unlikely,” “improbable,” “uncertain”).
-    - 1 (Possible): Use when a risk has been mentioned as a concern or under active monitoring, but without high confidence or certainty (e.g., “possible,” “could,” “might,” "potential," "may").
-    - 2 (Likely): Use for risks that are forecasted with strong confidence or are already occurring, especially if supported by formal alerts, warnings, or ongoing conditions (e.g., "almost certain," "likely," "probable," "ongoing").
+- 0 (Unlikely): Use for risks that are speculative, rare, or expressed with weak/moderate conditional language. Look for language like: “unlikely,” “improbable,” “uncertain.”
+- 1 (Possible): Use for risks that are mentioned as concerns or under monitoring but have unclear certainty. Look for phrases like: “possible,” “could,” “might,” “may,” “potential.”
+- 2 (Likely): Use when the risk is highly probable or already unfolding, especially when supported by formal alerts, warnings, or active events. Trigger words include: “likely,” “probable,” “expected,” “ongoing,” “forecasted,” or “certain.”
 
-    Avoid assigning all risks a 2 unless the scenario strongly supports that. Use contextual language to guide your Likelihood score. Calibrate carefully.
+Carefully assess whether each individual risk is likely or merely possible. Avoid assigning all risks a 2 unless clearly supported by language or evidence. Apply these distinctions rigorously to reflect actual probability.
     """
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
