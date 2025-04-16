@@ -51,17 +51,16 @@ def gpt_extract_risks(scenario_text):
     - “Flooding is **ongoing**” or “Evacuation **underway**” → Likelihood = 2
 
     Return the result in JSON format with this structure:
-    [
-      {
-        "name": "Short risk name",
-        "category": "Mapped category from list",
-        "severity": 0-2,
-        "relevance": 0-2,
-        "directionality": 0-2,
-        "likelihood": 0-2
-      },
-      ...
-    ]
+[
+  {
+    "name": "Short risk name",
+    "category": "Mapped category from list",
+    "severity": 1,
+    "relevance": 1,
+    "directionality": 1,
+    "likelihood": 1
+  }
+]
 
     Scenario:
     {scenario_text}
