@@ -124,7 +124,7 @@ scenario = st.text_area("Enter Threat Scenario")
 tolerance = st.selectbox("Select Client Risk Tolerance", ["Low", "Moderate", "High"], index=1)
 
 if st.button("Analyze Scenario"):
-    with st.spinner("Analyzing with ChatGPT..."):
+    with st.spinner("Analyzing..."):
         risks = gpt_extract_risks(scenario)
         if risks:
             df_summary, aggregated_score, final_score = calculate_risk_summary(risks)
