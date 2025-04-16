@@ -154,16 +154,22 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
     updated_inputs = edited_risks
 
     if st.button("Recalculate", key="recalc1"):
-                old_aggregated_score, old_final_score = aggregated_score, final_score
-                df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
-                risk_level, guidance = advice_matrix(final_score, tolerance)
-                st.markdown("**Updated Results after Recalculation:**")
+    old_aggregated_score, old_final_score = aggregated_score, final_score
+    df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
+    risk_level, guidance = advice_matrix(final_score, tolerance)
+    st.markdown("**Updated Results after Recalculation:**")
 
-                delta_agg = aggregated_score - old_aggregated_score
-                delta_final = final_score - old_final_score
+    delta_agg = aggregated_score - old_aggregated_score
+    delta_final = final_score - old_final_score
 
-                agg_note = f"{aggregated_score} (up from {old_aggregated_score})" if delta_agg > 0 else f"{aggregated_score} (down from {old_aggregated_score})" if delta_agg < 0 else f"{aggregated_score} (unchanged)"
-                final_note = f"{final_score} (up from {old_final_score})" if delta_final > 0 else f"{final_score} (down from {old_final_score})" if delta_final < 0 else f"{final_score} (unchanged)"
+    agg_note = f"{aggregated_score} (up from {old_aggregated_score})" if delta_agg > 0 else f"{aggregated_score} (down from {old_aggregated_score})" if delta_agg < 0 else f"{aggregated_score} (unchanged)"
+    final_note = f"{final_score} (up from {old_final_score})" if delta_final > 0 else f"{final_score} (down from {old_final_score})" if delta_final < 0 else f"{final_score} (unchanged)"
+
+    st.markdown(f"**Aggregated Risk Score:** {agg_note}")
+    st.markdown(f"**Assessed Risk Score (0-100):** {final_note}")
+    st.markdown(f"**Risk Level:** {risk_level}")
+    st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")
+    st.session_state.recalculated = True
 
                 st.markdown(f"**Aggregated Risk Score:** {agg_note}")
                 st.markdown(f"**Assessed Risk Score (0-100):** {final_note}")
@@ -172,7 +178,11 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
 
             df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
             risk_level, guidance = advice_matrix(final_score, tolerance)
-            df_summary.index = df_summary.index + 1  # Start numbering from 1
+            if 'recalculated' not in st.session_state:
+        df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
+        risk_level, guidance = advice_matrix(final_score, tolerance)
+
+    df_summary.index = df_summary.index + 1  # Start numbering from 1
     # Show initial results after analysis
     st.markdown("**Scores:**")
     st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
