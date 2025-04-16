@@ -12,10 +12,11 @@ class RiskInput:
     severity: int
     relevance: int
     directionality: int
+    likelihood: int
     category: str
 
     def weighted_score(self) -> int:
-        return (self.severity * 1) + (self.relevance * 2) + (self.directionality * 1)
+        return (self.severity * 1) + (self.relevance * 2) + (self.directionality * 1) + (self.likelihood * 1)
 
 def gpt_extract_risks(scenario_text):
     prompt = f"""
@@ -44,7 +45,8 @@ Scenario:
         "category": "Mapped category from list",
         "severity": value,
         "relevance": value,
-        "directionality": value
+        "directionality": value,
+        "likelihood": value
       },
       ...
     ]
@@ -75,11 +77,12 @@ def calculate_risk_summary(inputs):
             "Severity": risk.severity,
             "Relevance": risk.relevance,
             "Directionality": risk.directionality,
+            "Likelihood": risk.likelihood,
             "Weighted Score": score
         })
 
     df = pd.DataFrame(rows)
-    max_possible_score = len(inputs) * 8
+    max_possible_score = len(inputs) * 10
     normalized_score = int(round((total_score / max_possible_score) * 10)) if max_possible_score > 0 else 0
 
     # Risk Clustering Bonus
@@ -160,7 +163,8 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         severity = cols[2].selectbox("Severity", [0, 1, 2], index=risk.severity, key=f"sev_{i}")
         relevance = cols[3].selectbox("Relevance", [0, 1, 2], index=risk.relevance, key=f"rel_{i}")
         directionality = cols[4].selectbox("Directionality", [0, 1, 2], index=risk.directionality, key=f"dir_{i}")
-        edited_risks.append(RiskInput(name, severity, relevance, directionality, category))
+        likelihood = st.selectbox("Likelihood", [0, 1, 2], index=risk.likelihood, key=f"like_{i}")
+        edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
     updated_inputs = edited_risks
 
