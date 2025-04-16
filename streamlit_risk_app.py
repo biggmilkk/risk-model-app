@@ -58,6 +58,7 @@ Do not downscore these situations just because the event hasn't yet occurred —
 Do **not** assign Likelihood = 2 when phrasing includes soft or tentative language such as “may,” “could,” “might,” or “are considering,” unless paired with official confirmation or additional strong indicators. These represent **possibility**, not certainty. For example:
 - “Officials may impose movement restrictions” → Likelihood = 1
 - “Retaliatory attacks are possible” → Likelihood = 1
+- “Clashes cannot be ruled out” → Likelihood = 1
 These are speculative unless accompanied by concrete alerts, patterns, or actionable intelligence indicating strong probability.
 
 Examples:
