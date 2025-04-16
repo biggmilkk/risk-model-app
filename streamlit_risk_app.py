@@ -74,7 +74,15 @@ Examples:
     import json
     content = response.choices[0].message.content
     try:
-        return [RiskInput(**entry) for entry in json.loads(content)]
+        parsed = json.loads(content)
+        risks = []
+        for entry in parsed:
+            try:
+                risks.append(RiskInput(**entry))
+            except Exception as e:
+                st.warning(f"Failed to convert entry: {entry}")
+                st.exception(e)
+        return risks
     except Exception as e:
         st.error("Failed to parse GPT response.")
         st.code(content, language="json")
