@@ -58,7 +58,12 @@ Example:
     - “Urban flooding **may** occur” → Likelihood = 1  
     - “Flooding is **ongoing**” or “Evacuation **underway**” → Likelihood = 2
 
-    Return the result in JSON format with this structure:
+    Where multiple impacts stem from the same underlying cause, such as snow leading to both road closures and traffic delays, consolidate them into a single risk entry if they occur within the same domain. For example:
+- “Probable highway closures” and “likely trucking delays” may be grouped as “Winter weather-related road transport disruption” under Operational Disruption.
+
+Avoid duplicating risk entries that can logically be treated as one with a broader scope.
+
+Return the result in JSON format with this structure:
 [
   {{
     "name": "Short risk name",
