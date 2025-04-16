@@ -138,14 +138,17 @@ if st.button("Analyze Scenario"):
             ]
             updated_inputs = []
             st.subheader("Mapped Risks and Scores (Editable)")
+            edited_risks = []
             for i, risk in enumerate(risks):
-                with st.expander(f"Edit Risk {i + 1}: {risk.name}"):
-                    name = st.text_input(f"Risk Name {i + 1}", value=risk.name, key=f"name_{i}")
-                    category = st.selectbox(f"Category {i + 1}", options=categories, index=categories.index(risk.category), key=f"cat_{i}")
-                    severity = st.selectbox(f"Severity {i + 1}", options=[0, 0.5, 1, 1.5, 2], index=int(risk.severity * 2), key=f"sev_{i}")
-                    relevance = st.selectbox(f"Relevance {i + 1}", options=[0, 0.5, 1, 1.5, 2], index=int(risk.relevance * 2), key=f"rel_{i}")
-                    directionality = st.selectbox(f"Directionality {i + 1}", options=[0.5, 1, 1.5], index=int((risk.directionality - 0.5) * 2), key=f"dir_{i}")
-                    updated_inputs.append(RiskInput(name, severity, relevance, directionality, category))
+                cols = st.columns(5)
+                name = cols[0].text_input("Scenario", value=risk.name, key=f"name_{i}")
+                category = cols[1].selectbox("Risk Category", categories, index=categories.index(risk.category), key=f"cat_{i}")
+                severity = cols[2].selectbox("Severity", [0, 0.5, 1, 1.5, 2], index=int(risk.severity * 2), key=f"sev_{i}")
+                relevance = cols[3].selectbox("Relevance", [0, 0.5, 1, 1.5, 2], index=int(risk.relevance * 2), key=f"rel_{i}")
+                directionality = cols[4].selectbox("Directionality", [0.5, 1, 1.5], index=int((risk.directionality - 0.5) * 2), key=f"dir_{i}")
+                edited_risks.append(RiskInput(name, severity, relevance, directionality, category))
+
+            updated_inputs = edited_risks
 
             df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
             risk_level, guidance = advice_matrix(final_score, tolerance)
