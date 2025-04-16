@@ -53,6 +53,8 @@ If authorities or scenario text indicates that disruptions are “likely,” “
 
 Do not downscore these situations just because the event hasn't yet occurred — the language strongly indicates high confidence and should be reflected accordingly.
 
+Do **not** assign Likelihood = 2 when phrasing includes soft or tentative language such as “may,” “could,” “might,” or “are considering,” unless paired with official confirmation or additional strong indicators. These represent **possibility**, not certainty.
+
 Examples:
 - “Firefighters are responding to a blaze” → Likelihood = 2
 - “Authorities have evacuated a university due to a fire” → Likelihood = 2
