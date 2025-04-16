@@ -23,17 +23,63 @@ def gpt_extract_risks(scenario_text):
     prompt = f"""
     You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the known risk criteria below, and estimate its severity (0-2), relevance (0-2 in 0.5 steps), and directionality (0.5, 1, or 1.5).
 
-    Risk Criteria:
-    - Critical Incident (e.g., political volatility, protest activity)
-    - Life Safety Concerns and Relative Concern of Crisis24 Personnel
-    - Severity of Relevant Crisis24 Alerts
-    - Impact Considerations (e.g., business/transport disruptions)
-    - Location Considerations
-    - Immediacy Considerations
-    - Symbolic or Political Targeting
-    - Airport Type or Access to Safe Exit
-    - Housing/Shelter Security
-    - Supervision or Organizational Support
+       Risk Criteria:
+- Critical Incident? (e.g., political volatility [armed clashes, curfew, coup d'etat, border closure, close of travel hubs, violent civil unrest]; large-scale natural disaster; terrorism; large-scale industrial disaster; plane accident with traveler registered as on board)
+- Crisis24 Assessment of Life Safety Concerns
+- Relative Concern of Crisis24 Personnel When Viewing Event from Client’s Perspective
+- Severity of Relevant Crisis24 Alerts Issued
+- Preexisting Crisis24 Location Intelligence Overall Rating
+- Dynamic Risk Library Assessment of Political Instability/Security & Natural Disasters Odds
+- Location Considerations
+- Immediacy Considerations
+- Impact Considerations
+- Crisis Advice Team (CAT) Assembled for Meetings?
+- When Travelers Intend to Leave Travel Location
+- Airport Type From Which Travelers Intend to Leave
+- Supervision/Support
+- Security of Housing (Assuming Travelers Can Get There)
+- Undergraduate, Graduate, Staff, or Faculty Travelers
+- Strain on Local Medical Resources
+- Program Type
+- Group Size
+- Field Site or Urban Environment
+- Increased Transmission of Communicable Diseases
+- Changes in Local Climate (Environmental)
+- How Far Students Must Commute to Necessities (More or Less Exposure to Risky Environments)
+- Event Lead Time Before Impact
+- US Department of State Travel Advisory Status
+- US Department of State requests/allows departure of nonessential employees
+- UK FCDO Travel Warnings Status in Area of Travel
+- Australia Smarttraveller Warnings Status in Area of Travel
+- Actions Taken by Local Government
+- Other Assistance Companies Issuing Warning/Standby Notices
+- Other Higher Ed Clients Discussing Evacuation
+- Closure of Educational Institutions
+- Key Populations Being Targeted
+- Anti-American sentiment
+- History of Resolution
+- Status of Government
+- Sustained Civil Unrest
+- Police/Military Presence in Areas Where Students Live or Travelers are Staying
+- Observance of Lawlessness
+- Likelihood of Regional Conflict Spillover Into Traveler's Area of Operations
+- Airlines Limiting or Canceling Flights Into or Out of Major Airports
+- Curfews That Limit Movement to Airports or Access to Necessary Resources
+- Road Closures that Limit Movement to Airports or Access to Necessary Resources
+- Relative Capabilities of Assistance Company
+- Disruptions to Mobile Voice and SMS Services
+- Disruptions to Mobile Data and Internet Services
+- Access to Food and Clean Water
+- Access to Fuel
+- Issues with Interpersonal Communication
+- Observance of Power Outages
+- Severity of Health Situation (Patient Self-Report)
+- Severity of Health Situation (Official/Provider Report)
+- Reported Magnitude of Deviation from Baseline Medical/Mental Health History
+- Crisis24 Medical Assessment of Current Medical/Mental Health Condition (If Available)
+- Availability of Relevant Medical/Mental Health Treatment
+- Critical Medication Supply/Availability
+- Need for a Medical Escort
 
     Scenario:
     """ + scenario_text + """
