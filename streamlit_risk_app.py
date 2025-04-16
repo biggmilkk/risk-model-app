@@ -62,7 +62,7 @@ def gpt_extract_risks(scenario_text):
   }
 ]
 
-    Scenario:
+Scenario:
     {scenario_text}
     """
     response = client.chat.completions.create(
