@@ -47,6 +47,10 @@ Give a **Likelihood of 2** if the event is actively occurring, confirmed by repo
 
 Avoid assigning Likelihood = 1 to ongoing or already confirmed disruptions just because they are phrased as possibilities in adjacent context.
 
+If authorities or scenario text indicates that disruptions are “likely,” “expected,” or “probable,” especially in operational or logistical domains (e.g., transport, security), this should be scored as **Likelihood = 2**. This includes phrases like “localized transport disruptions are likely” or “clashes are expected.”
+
+Do not downscore these situations just because the event hasn't yet occurred — the language strongly indicates high confidence and should be reflected accordingly.
+
 Examples:
 - “Firefighters are responding to a blaze” → Likelihood = 2
 - “Authorities have evacuated a university due to a fire” → Likelihood = 2
