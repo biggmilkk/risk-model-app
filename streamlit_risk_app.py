@@ -130,7 +130,8 @@ if st.button("Analyze Scenario"):
             risk_level, guidance = advice_matrix(final_score, tolerance)
 
             st.subheader("Mapped Risks and Scores")
-            st.dataframe(df_summary)
+            df_summary.index = df_summary.index + 1  # Start numbering from 1
+            st.dataframe(df_summary, use_container_width=True)  # Full-width table
 
             st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
             st.markdown(f"**Assessed Risk Score (0-100):** {final_score}")
