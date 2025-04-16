@@ -155,6 +155,13 @@ if st.button("Analyze Scenario"):
             df_summary.index = df_summary.index + 1  # Start numbering from 1
     st.dataframe(df_summary, use_container_width=True)
 
+    # Show initial results after analysis
+    st.markdown("**Initial Results:**")
+    st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
+    st.markdown(f"**Assessed Risk Score (0-100):** {final_score}")
+    st.markdown(f"**Risk Level:** {risk_level}")
+    st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")
+
     if st.button("Recalculate"):
         old_aggregated_score, old_final_score = aggregated_score, final_score
         df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
