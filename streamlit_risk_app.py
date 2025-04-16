@@ -55,10 +55,10 @@ def gpt_extract_risks(scenario_text):
       {
         "name": "Short risk name",
         "category": "Mapped category from list",
-        "severity": 0–2,
-        "relevance": 0–2,
-        "directionality": 0–2,
-        "likelihood": 0–2
+        "severity": 0-2,
+        "relevance": 0-2,
+        "directionality": 0-2,
+        "likelihood": 0-2
       },
       ...
     ]
