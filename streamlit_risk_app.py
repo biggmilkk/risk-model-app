@@ -153,20 +153,8 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
 
     updated_inputs = edited_risks
 
-    
-        st.markdown("**Scores:**")
-        st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
-        st.markdown(f"**Assessed Risk Score (0-100):** {final_score}")
-        st.markdown(f"**Risk Level:** {risk_level}")
-        st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")
-
-    
-        df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
-        risk_level, guidance = advice_matrix(final_score, tolerance)
+    df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
+    risk_level, guidance = advice_matrix(final_score, tolerance)
 
     df_summary.index = df_summary.index + 1  # Start numbering from 1
-    st.markdown("**Scores:**")
-    st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
-    st.markdown(f"**Assessed Risk Score (0-100):** {final_score}")
-    st.markdown(f"**Risk Level:** {risk_level}")
-    st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")
+    
