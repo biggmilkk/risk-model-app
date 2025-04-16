@@ -169,7 +169,4 @@ if st.button("Analyze Scenario"):
         st.markdown(f"**Risk Level:** {risk_level}")
         st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")  # Full-width table
 
-            st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
-            st.markdown(f"**Assessed Risk Score (0-100):** {final_score}")
-            st.markdown(f"**Risk Level:** {risk_level}")
-            st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")
+            
