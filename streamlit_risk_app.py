@@ -54,6 +54,8 @@ Examples:
 - “Authorities **could** issue evacuation orders” → Likelihood = 1
 - “Urban flooding **may** occur” → Likelihood = 1
 - “Flooding is **ongoing**” or “Evacuation **underway**” → Likelihood = 2
+- “The Bharatiya Janata Party (BJP) will march on April 17…” → Likelihood = 2
+- “Organizers expect thousands to attend a planned protest” → Likelihood = 2
 
 Assigning all risks a Likelihood of 2 is incorrect and inflates the model. Do not assign a 2 unless the specific line describing the risk includes words or evidence supporting high certainty.
 
