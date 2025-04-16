@@ -58,12 +58,9 @@ Example:
     - “Urban flooding **may** occur” → Likelihood = 1  
     - “Flooding is **ongoing**” or “Evacuation **underway**” → Likelihood = 2
 
-    Group multiple related impacts from the same root cause into a single risk whenever possible. Do not list separate risks for traffic delays, road closures, and trucking disruption if they are all caused by the same weather event. Instead, summarize them under one broader risk like:
+    Group impacts stemming from the same root cause **only if they affect the same mode of operation, area, and timeframe**. For example, if both road closures and traffic delays are caused by snow in the same region and time window, combine them as “Winter storm-related road transport disruption.”
 
-- “Winter storm-related ground transportation disruption”
-- “Weather-related infrastructure disruption”
-
-Avoid creating separate entries if the cause, timing, and geography overlap significantly.
+However, **preserve separate risk entries** when the effects differ in nature (e.g., air vs. road), geography, or timing. Avoid excessive grouping that could overlook important distinctions in how risks impact clients.
 
 Return the result in JSON format with this structure:
 [
