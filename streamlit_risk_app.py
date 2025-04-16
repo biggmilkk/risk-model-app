@@ -126,18 +126,32 @@ tolerance = st.selectbox("Select Client Risk Tolerance", ["Low", "Moderate", "Hi
 
 if st.button("Analyze Scenario"):
     with st.spinner("Analyzing..."):
-        risks = gpt_extract_risks(scenario)
-        if risks:
-            categories = [
-                "Threat Environment",
-                "Operational Disruption",
-                "Health & Medical Risk",
-                "Client Profile & Exposure",
-                "Geo-Political & Intelligence Assessment",
-                "Infrastructure & Resource Stability"
-            ]
-            updated_inputs = []
-            st.subheader("Mapped Risks and Scores")
+        st.session_state.risks = gpt_extract_risks(scenario)
+        st.session_state.show_editor = True
+
+if st.session_state.get("show_editor") and st.session_state.get("risks"):
+    risks = st.session_state.risks
+    categories = [
+        "Threat Environment",
+        "Operational Disruption",
+        "Health & Medical Risk",
+        "Client Profile & Exposure",
+        "Geo-Political & Intelligence Assessment",
+        "Infrastructure & Resource Stability"
+    ]
+    updated_inputs = []
+    st.subheader("Mapped Risks and Scores")
+    edited_risks = []
+    for i, risk in enumerate(risks):
+        cols = st.columns(5)
+        name = cols[0].text_input("Scenario", value=risk.name, key=f"name_{i}")
+        category = cols[1].selectbox("Risk Category", categories, index=categories.index(risk.category), key=f"cat_{i}")
+        severity = cols[2].selectbox("Severity", [0, 0.5, 1, 1.5, 2], index=int(risk.severity * 2), key=f"sev_{i}")
+        relevance = cols[3].selectbox("Relevance", [0, 0.5, 1, 1.5, 2], index=int(risk.relevance * 2), key=f"rel_{i}")
+        directionality = cols[4].selectbox("Directionality", [0.5, 1, 1.5], index=int((risk.directionality - 0.5) * 2), key=f"dir_{i}")
+        edited_risks.append(RiskInput(name, severity, relevance, directionality, category))
+
+    updated_inputs = edited_risks
             edited_risks = []
             for i, risk in enumerate(risks):
                 cols = st.columns(5)
