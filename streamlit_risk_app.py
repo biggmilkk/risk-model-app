@@ -136,12 +136,12 @@ def calculate_risk_summary(inputs):
         score = risk.weighted_score()
         total_score += score
         rows.append({
-            "Scenario": risk.name,
-            "Risk Category": risk.category,
-            "Severity": risk.severity,
-            "Relevance": risk.relevance,
-            "Directionality": risk.directionality,
-            "Likelihood": risk.likelihood,
+        "Scenario": risk.name,
+        "Risk Category": risk.category,
+        "Severity": risk.severity,
+        "Directionality": risk.directionality,
+        "Likelihood": risk.likelihood,
+        "Relevance": risk.relevance,
             "Weighted Score": score
         })
 
