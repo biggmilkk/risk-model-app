@@ -121,7 +121,7 @@ st.set_page_config(layout="wide")
 st.title("AI-Assisted Risk Model & Advice Generator")
 
 scenario = st.text_area("Enter Threat Scenario")
-tolerance = st.selectbox("Select Client Risk Tolerance", ["Low", "Moderate", "High"])
+tolerance = st.selectbox("Select Client Risk Tolerance", ["Low", "Moderate", "High"], index=1)
 
 if st.button("Analyze Scenario"):
     with st.spinner("Analyzing with ChatGPT..."):
