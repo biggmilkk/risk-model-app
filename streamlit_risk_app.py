@@ -225,9 +225,9 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         name = cols[0].text_input("Scenario", value=risk.name, key=f"name_{i}")
         category = cols[1].selectbox("Risk Category", categories, index=categories.index(risk.category), key=f"cat_{i}")
         severity = cols[2].selectbox("Severity", [0, 1, 2], index=risk.severity if risk.severity in [0, 1, 2] else 1, key=f"sev_{i}")
-        relevance = cols[3].selectbox("Relevance", [0, 1, 2], index=risk.relevance if risk.relevance in [0, 1, 2] else 1, key=f"rel_{i}")
-        directionality = cols[4].selectbox("Directionality", [0, 1, 2], index=risk.directionality if risk.directionality in [0, 1, 2] else 1, key=f"dir_{i}")
-        likelihood = cols[5].selectbox("Likelihood", [0, 1, 2], index=risk.likelihood if risk.likelihood in [0, 1, 2] else 1, key=f"like_{i}")
+        directionality = cols[3].selectbox("Directionality", [0, 1, 2], index=risk.directionality if risk.directionality in [0, 1, 2] else 1, key=f"dir_{i}")
+        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], index=risk.likelihood if risk.likelihood in [0, 1, 2] else 1, key=f"like_{i}")
+        relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=risk.relevance if risk.relevance in [0, 1, 2] else 1, key=f"rel_{i}")
         edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
     updated_inputs = edited_risks
