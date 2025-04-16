@@ -84,8 +84,13 @@ def calculate_risk_summary(inputs):
 
     # Risk Clustering Bonus
     categories = [r.category for r in inputs]
-    category_counts = Counter(categories)
-    cluster_bonus = sum(1 for count in category_counts.values() if count > 1)
+    total_categories = len(categories)
+    unique_categories = len(set(categories))
+    if total_categories > 0:
+        clustering_ratio = (total_categories - unique_categories) / total_categories
+        cluster_bonus = min(round(clustering_ratio * 2), 2)
+    else:
+        cluster_bonus = 0
 
     final_score = min(normalized_score + cluster_bonus, 10)
     return df, total_score, final_score
