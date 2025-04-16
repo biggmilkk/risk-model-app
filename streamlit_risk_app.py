@@ -150,7 +150,7 @@ if st.button("Analyze Scenario"):
 
             updated_inputs = edited_risks
 
-            if st.button("Recalculate"):
+            if st.button("Recalculate", key="recalc1"):
                 old_aggregated_score, old_final_score = aggregated_score, final_score
                 df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
                 risk_level, guidance = advice_matrix(final_score, tolerance)
@@ -177,7 +177,7 @@ if st.button("Analyze Scenario"):
     st.markdown(f"**Risk Level:** {risk_level}")
     st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")
 
-    if st.button("Recalculate"):
+    if st.button("Recalculate", key="recalc2"):
         old_aggregated_score, old_final_score = aggregated_score, final_score
         df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
         risk_level, guidance = advice_matrix(final_score, tolerance)
