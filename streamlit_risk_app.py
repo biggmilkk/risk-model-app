@@ -2,26 +2,24 @@ import streamlit as st
 from dataclasses import dataclass
 import pandas as pd
 import openai
+from collections import Counter
 
 client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 @dataclass
 class RiskInput:
     name: str
-    severity: float
-    relevance: float
-    directionality: float
+    severity: int
+    relevance: int
+    directionality: int
     category: str
 
-    def assigned_weighting(self) -> float:
-        return self.relevance * self.directionality
-
-    def disaggregated_score(self) -> float:
-        return self.severity * self.assigned_weighting()
+    def weighted_score(self) -> int:
+        return (self.severity * 1) + (self.relevance * 2) + (self.directionality * 1)
 
 def gpt_extract_risks(scenario_text):
     prompt = f"""
-    You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the following higher-level risk categories, and estimate its severity (0-2), relevance (0-2 in 0.5 steps), and directionality (0.5, 1, or 1.5).
+    You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the following higher-level risk categories, and estimate its severity (0-2), relevance (0-2), and directionality (0-2). Use whole numbers only.
 
     Risk Categories:
 1. Threat Environment (e.g., Critical Incident, Sustained Civil Unrest, Anti-American Sentiment, Status of Government, History of Resolution, Actions Taken by Local Government, Key Populations Being Targeted, Police/Military Presence, Observance of Lawlessness, Likelihood of Regional Conflict Spillover, Other Assistance Companies Issuing Warnings, Other Higher Ed Clients Discussing Evacuation, Closure of Educational Institutions)
@@ -67,29 +65,37 @@ Scenario:
 
 def calculate_risk_summary(inputs):
     rows = []
+    total_score = 0
     for risk in inputs:
+        score = risk.weighted_score()
+        total_score += score
         rows.append({
             "Scenario": risk.name,
             "Risk Category": risk.category,
             "Severity": risk.severity,
             "Relevance": risk.relevance,
             "Directionality": risk.directionality,
-            "Assigned Weighting": risk.assigned_weighting(),
-            "Disaggregated Score": risk.disaggregated_score()
+            "Weighted Score": score
         })
 
     df = pd.DataFrame(rows)
-    aggregated = df["Disaggregated Score"].sum()
-    dynamic_scale_total = sum(r.relevance for r in inputs) * 3
-    assessed_score = round((aggregated / dynamic_scale_total) * 100, 2) if dynamic_scale_total > 0 else 0.0
-    return df, aggregated, assessed_score
+    max_possible_score = len(inputs) * 8
+    normalized_score = round((total_score / max_possible_score) * 10) if max_possible_score > 0 else 0
 
-def advice_matrix(score: float, tolerance: str):
-    if score < 25:
+    # Risk Clustering Bonus
+    categories = [r.category for r in inputs]
+    category_counts = Counter(categories)
+    cluster_bonus = sum(1 for count in category_counts.values() if count > 1)
+
+    final_score = min(normalized_score + cluster_bonus, 10)
+    return df, total_score, final_score
+
+def advice_matrix(score: int, tolerance: str):
+    if score <= 3:
         risk_level = "Low"
-    elif score < 50:
+    elif score <= 6:
         risk_level = "Moderate"
-    elif score < 75:
+    elif score <= 8:
         risk_level = "High"
     else:
         risk_level = "Extreme"
@@ -146,9 +152,9 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         cols = st.columns(5)
         name = cols[0].text_input("Scenario", value=risk.name, key=f"name_{i}")
         category = cols[1].selectbox("Risk Category", categories, index=categories.index(risk.category), key=f"cat_{i}")
-        severity = cols[2].selectbox("Severity", [0, 0.5, 1, 1.5, 2], index=int(risk.severity * 2), key=f"sev_{i}")
-        relevance = cols[3].selectbox("Relevance", [0, 0.5, 1, 1.5, 2], index=int(risk.relevance * 2), key=f"rel_{i}")
-        directionality = cols[4].selectbox("Directionality", [0.5, 1, 1.5], index=int((risk.directionality - 0.5) * 2), key=f"dir_{i}")
+        severity = cols[2].selectbox("Severity", [0, 1, 2], index=risk.severity, key=f"sev_{i}")
+        relevance = cols[3].selectbox("Relevance", [0, 1, 2], index=risk.relevance, key=f"rel_{i}")
+        directionality = cols[4].selectbox("Directionality", [0, 1, 2], index=risk.directionality, key=f"dir_{i}")
         edited_risks.append(RiskInput(name, severity, relevance, directionality, category))
 
     updated_inputs = edited_risks
@@ -160,7 +166,6 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
 
     st.markdown("**Scores:**")
     st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
-    st.markdown(f"**Assessed Risk Score (0-100):** {final_score}")
+    st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
     st.markdown(f"**Risk Level:** {risk_level}")
     st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")
-    
