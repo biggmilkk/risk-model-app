@@ -70,6 +70,7 @@ Carefully assess whether each individual risk is likely or merely possible. Avoi
         return [RiskInput(**entry) for entry in json.loads(content)]
     except Exception as e:
         st.error("Failed to parse GPT response.")
+        st.code(content, language="json")
         return []
 
 def calculate_risk_summary(inputs):
