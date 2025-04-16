@@ -45,6 +45,14 @@ def gpt_extract_risks(scenario_text):
 
     Do not assign a 2 unless the specific line describing the risk includes words or evidence supporting high certainty. Assigning all risks a Likelihood of 2 is incorrect and inflates the model.
 
+If a threat described in the scenario has already been resolved or is no longer active (e.g., a successful rescue, arrest, de-escalation), reflect this in the scoring:
+- Set **directionality** to 0 (improving) if the situation has been mitigated or resolved.
+- Lower the **severity** and **likelihood** accordingly.
+- Do not generate risks for events that have concluded unless there are relevant **ongoing** implications or residual risks (e.g., reputational risk, recurring threat).
+
+Example:
+- “A kidnapped individual was rescued and the suspects were killed” → Directionality = 0, Likelihood = 0 or 1, Severity = 0 or 1 depending on ongoing risk.
+
     Examples:
     - “Authorities **could** issue evacuation orders” → Likelihood = 1  
     - “Urban flooding **may** occur” → Likelihood = 1  
