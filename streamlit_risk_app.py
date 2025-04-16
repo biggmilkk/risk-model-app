@@ -163,25 +163,13 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         st.markdown(f"**Risk Level:** {risk_level}")
         st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")
 
-                st.markdown(f"**Aggregated Risk Score:** {agg_note}")
-                st.markdown(f"**Assessed Risk Score (0-100):** {final_note}")
-                st.markdown(f"**Risk Level:** {risk_level}")
-                st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")
-
-            df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
-            risk_level, guidance = advice_matrix(final_score, tolerance)
-            if 'recalculated' not in st.session_state:
+    if 'recalculated' not in st.session_state:
         df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
         risk_level, guidance = advice_matrix(final_score, tolerance)
 
     df_summary.index = df_summary.index + 1  # Start numbering from 1
-    # Show initial results after analysis
     st.markdown("**Scores:**")
     st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
     st.markdown(f"**Assessed Risk Score (0-100):** {final_score}")
     st.markdown(f"**Risk Level:** {risk_level}")
     st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")
-
-    
-
-            
