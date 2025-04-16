@@ -58,10 +58,12 @@ Example:
     - “Urban flooding **may** occur” → Likelihood = 1  
     - “Flooding is **ongoing**” or “Evacuation **underway**” → Likelihood = 2
 
-    Where multiple impacts stem from the same underlying cause, such as snow leading to both road closures and traffic delays, consolidate them into a single risk entry if they occur within the same domain. For example:
-- “Probable highway closures” and “likely trucking delays” may be grouped as “Winter weather-related road transport disruption” under Operational Disruption.
+    Group multiple related impacts from the same root cause into a single risk whenever possible. Do not list separate risks for traffic delays, road closures, and trucking disruption if they are all caused by the same weather event. Instead, summarize them under one broader risk like:
 
-Avoid duplicating risk entries that can logically be treated as one with a broader scope.
+- “Winter storm-related ground transportation disruption”
+- “Weather-related infrastructure disruption”
+
+Avoid creating separate entries if the cause, timing, and geography overlap significantly.
 
 Return the result in JSON format with this structure:
 [
