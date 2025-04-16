@@ -153,7 +153,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
 
     updated_inputs = edited_risks
 
-            if st.button("Recalculate", key="recalc1"):
+    if st.button("Recalculate", key="recalc1"):
                 old_aggregated_score, old_final_score = aggregated_score, final_score
                 df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
                 risk_level, guidance = advice_matrix(final_score, tolerance)
