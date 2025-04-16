@@ -47,7 +47,9 @@ Give a **Likelihood of 2** if the event is actively occurring, confirmed by repo
 
 Avoid assigning Likelihood = 1 to ongoing or already confirmed disruptions just because they are phrased as possibilities in adjacent context.
 
-If authorities or credible reporting suggests a high probability of a development—such as heightened security after a deadly attack—this should also be scored as **Likelihood = 2**. This includes situations where authorities are expected to respond with preventive or stabilizing measures, like curfews, increased patrols, or public safety deployments, especially in response to a recent violent incident or elevated threat context.
+If authorities or credible reporting suggests a high probability of a development—such as heightened security after a deadly attack—this should also be scored as **Likelihood = 2**. For example, "heightened security will likely be maintained" reflects a strong expectation and should not be downgraded to 1.
+
+Use context to differentiate between speculative responses (e.g., “may deploy security forces”) and confident operational forecasts (e.g., “will likely maintain heightened security”). The latter implies a high-certainty action and should receive **Likelihood = 2** if stated clearly.
 
 If authorities or scenario text indicates that disruptions are “likely,” “expected,” or “probable,” especially in operational or logistical domains (e.g., transport, security), this should be scored as **Likelihood = 2**. This includes phrases like “localized transport disruptions are likely” or “clashes are expected.”
 
