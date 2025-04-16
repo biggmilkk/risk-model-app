@@ -37,13 +37,25 @@ def gpt_extract_risks(scenario_text):
 
     Use the following logic when assigning **Likelihood**:
 
-    - 0 (Unlikely): Use for risks that are speculative, rare, or expressed with weak/moderate conditional language. Look for: “unlikely,” “improbable,” “uncertain.”
+- 0 (Unlikely): Use for risks that are speculative, rare, or expressed with weak/moderate conditional language. Look for: “unlikely,” “improbable,” “uncertain.”
 
-    - 1 (Possible): Use for risks that are mentioned or under monitoring but have unclear certainty. Keywords: “possible,” “could,” “might,” “may,” “potential.” Use this for most forecast-based risks unless the scenario clearly confirms the event will happen.
+- 1 (Possible): Use for risks that are mentioned or under monitoring but have unclear certainty. Keywords: “possible,” “could,” “might,” “may,” “potential.” Use this for most forecast-based risks unless the scenario clearly confirms the event will happen.
 
-    - 2 (Likely): Use only if the risk is highly probable or actively occurring. This includes active alerts, or confirmed events. Keywords: “likely,” “expected,” “forecasted with certainty,” “currently happening,” or “ongoing.”
+- 2 (Likely): Use if the risk is highly probable, actively occurring, or has been confirmed by official sources or real-time developments. This includes active alerts, confirmed incidents, or ongoing events. Keywords: “likely,” “expected,” “currently happening,” “ongoing,” or evidence of active emergency response.
 
-    Do not assign a 2 unless the specific line describing the risk includes words or evidence supporting high certainty. Assigning all risks a Likelihood of 2 is incorrect and inflates the model.
+Give a **Likelihood of 2** if the event is actively occurring, confirmed by reports or official alerts, or underway at the time of reporting. For example, active fires, confirmed transport disruptions, evacuations in progress, or emergency responses in motion should all be considered high likelihood.
+
+Avoid assigning Likelihood = 1 to ongoing or already confirmed disruptions just because they are phrased as possibilities in adjacent context.
+
+Examples:
+- “Firefighters are responding to a blaze” → Likelihood = 2
+- “Authorities have evacuated a university due to a fire” → Likelihood = 2
+- “Power outages have occurred” → Likelihood = 2
+- “Authorities **could** issue evacuation orders” → Likelihood = 1
+- “Urban flooding **may** occur” → Likelihood = 1
+- “Flooding is **ongoing**” or “Evacuation **underway**” → Likelihood = 2
+
+Assigning all risks a Likelihood of 2 is incorrect and inflates the model. Do not assign a 2 unless the specific line describing the risk includes words or evidence supporting high certainty.
 
 If a threat described in the scenario has already been resolved or is no longer active (e.g., a successful rescue, arrest, de-escalation), reflect this in the scoring:
 - Set **directionality** to 0 (improving) if the situation has been mitigated or resolved.
@@ -52,11 +64,6 @@ If a threat described in the scenario has already been resolved or is no longer 
 
 Example:
 - “A kidnapped individual was rescued and the suspects were killed” → Directionality = 0, Likelihood = 0 or 1, Severity = 0 or 1 depending on ongoing risk.
-
-    Examples:
-    - “Authorities **could** issue evacuation orders” → Likelihood = 1  
-    - “Urban flooding **may** occur” → Likelihood = 1  
-    - “Flooding is **ongoing**” or “Evacuation **underway**” → Likelihood = 2
 
     Group impacts stemming from the same root cause **only if they affect the same mode of operation, area, and timeframe**. For example, if both road closures and traffic delays are caused by snow in the same region and time window, combine them as “Winter storm-related road transport disruption.”
 
