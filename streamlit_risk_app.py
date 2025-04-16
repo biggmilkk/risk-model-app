@@ -75,10 +75,10 @@ Examples:
     content = response.choices[0].message.content
     try:
         parsed = json.loads(content)
-except Exception as e:
-    st.error("Failed to parse GPT response.")
-    st.code(content, language="json")
-    return []
+    except Exception as e:
+        st.error("Failed to parse GPT response.")
+        st.code(content, language="json")
+        return []
 
 risks = []
 for entry in parsed:
