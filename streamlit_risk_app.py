@@ -52,14 +52,14 @@ def gpt_extract_risks(scenario_text):
 
     Return the result in JSON format with this structure:
 [
-  {
+  {{
     "name": "Short risk name",
     "category": "Mapped category from list",
     "severity": 1,
     "relevance": 1,
     "directionality": 1,
     "likelihood": 1
-  }
+  }}
 ]
 
 Scenario:
