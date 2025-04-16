@@ -53,11 +53,18 @@ Scenario:
 
     Use the following logic when assigning **Likelihood**:
 
-- 0 (Unlikely): Use for risks that are speculative, rare, or expressed with weak/moderate conditional language. Look for language like: “unlikely,” “improbable,” “uncertain.”
-- 1 (Possible): Use for risks that are mentioned as concerns or under monitoring but have unclear certainty. Look for phrases like: “possible,” “could,” “might,” “may,” “potential.”
-- 2 (Likely): Use when the risk is highly probable or already unfolding, especially when supported by formal alerts, warnings, or active events. Trigger words include: “likely,” “probable,” “expected,” “ongoing,” “forecasted,” or “certain.”
+- 0 (Unlikely): Use for risks that are speculative, rare, or expressed with weak/moderate conditional language. Look for: “unlikely,” “improbable,” “uncertain.”
 
-Carefully assess whether each individual risk is likely or merely possible. Avoid assigning all risks a 2 unless clearly supported by language or evidence. Apply these distinctions rigorously to reflect actual probability.
+- 1 (Possible): Use for risks that are mentioned or under monitoring but have unclear certainty. Keywords: “possible,” “could,” “might,” “may,” “potential.” Use this for most forecast-based risks unless the scenario clearly confirms the event will happen.
+
+- 2 (Likely): Use only if the risk is highly probable or actively occurring. This includes active alerts, or confirmed events. Keywords: “likely,” “expected,” “forecasted with certainty,” “currently happening,” or “ongoing.”
+
+Do not assign a 2 unless the specific line describing the risk includes words or evidence supporting high certainty. Assigning all risks a Likelihood of 2 is incorrect and inflates the model.
+
+Examples:
+- “Authorities **could** issue evacuation orders” → Likelihood = 1  
+- “Urban flooding **may** occur” → Likelihood = 1  
+- “Flooding is **ongoing**” or “Evacuation **underway**” → Likelihood = 2
     """
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
