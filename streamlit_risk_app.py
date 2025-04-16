@@ -53,21 +53,7 @@ def gpt_extract_risks(scenario_text):
 
     return risks
 
-risks = []
-for entry in parsed:
-    try:
-        risks.append(RiskInput(**entry))
-    except Exception as e:
-        st.warning(f"Failed to convert entry: {entry}")
-        st.exception(e)
 
-if not risks:
-    st.warning("Parsed successfully, but no valid risks were returned.")
-return risks
-    except Exception as e:
-        st.error("Failed to parse GPT response.")
-        st.code(content, language="json")
-        return []
 
 def calculate_risk_summary(inputs):
     rows = []
