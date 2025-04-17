@@ -237,14 +237,16 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
 
     add_count = st.session_state.new_count
 
-    st.markdown("<div style='display: flex; gap: 10px;'>", unsafe_allow_html=True)
-if st.button("➕", key="add_row_btn_bottom_inline"):
-    st.session_state.new_count += 1
-    st.rerun()
-if st.session_state.new_count > 0 and st.button("➖", key="remove_row_btn_bottom_inline"):
-    st.session_state.new_count -= 1
-    st.rerun()
-st.markdown("</div>", unsafe_allow_html=True)
+        with st.container():
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            if st.button("➕", key="add_row_btn_bottom_inline"):
+                st.session_state.new_count += 1
+                st.rerun()
+        with col2:
+            if st.session_state.new_count > 0 and st.button("➖", key="remove_row_btn_bottom_inline"):
+                st.session_state.new_count -= 1
+                st.rerun()
 
     for j in range(add_count):
         cols = st.columns(6)
