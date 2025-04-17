@@ -239,6 +239,18 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
 
     st.markdown("---")  # Separator between GPT and manual additions
 
+    col_add, col_remove = st.columns([1, 1])
+    with col_add:
+        st.markdown("&nbsp;", unsafe_allow_html=True)
+        if st.button("➕", key="add_row_btn_bottom"):
+            st.session_state.new_count += 1
+            st.rerun()
+    with col_remove:
+        st.markdown("&nbsp;", unsafe_allow_html=True)
+        if st.session_state.new_count > 0 and st.button("➖", key="remove_row_btn_bottom"):
+            st.session_state.new_count -= 1
+            st.rerun()
+
     for j in range(add_count):
         cols = st.columns(6)
         name = cols[0].text_input("Scenario", value="", key=f"name_new_{j}")
