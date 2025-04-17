@@ -244,12 +244,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
             st.experimental_rerun()
 
     add_count = st.session_state.new_count
-    with col_add:
-        if st.button("➕ Add Scenario Row"):
-            st.session_state.new_count = add_count + 1
-    with col_remove:
-        if add_count > 0 and st.button("➖ Remove Scenario Row"):
-            st.session_state.new_count = add_count - 1
+    
     for j in range(add_count):
         cols = st.columns(6)
         name = cols[0].text_input("Scenario", value="", key=f"name_new_{j}")
