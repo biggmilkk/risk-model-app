@@ -258,7 +258,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], key=f"like_new_{j}")
         relevance = cols[5].selectbox("Relevance", [0, 1, 2], key=f"rel_new_{j}")
         if name:
-        edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
+            edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
     col_add, col_remove = st.columns([1, 1])
     with col_add:
