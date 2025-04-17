@@ -231,15 +231,15 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=risk.relevance if risk.relevance in [0, 1, 2] else 1, key=f"rel_{i}")
         edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
-    add_new = st.checkbox("Add a new risk manually")
-    if add_new:
+    add_count = st.number_input("How many new risks do you want to add?", min_value=0, max_value=10, step=1, value=0, key="new_count")
+    for j in range(add_count):
         cols = st.columns(6)
-        name = cols[0].text_input("Scenario", value="", key="name_new")
-        category = cols[1].selectbox("Risk Category", categories, key="cat_new")
-        severity = cols[2].selectbox("Severity", [0, 1, 2], key="sev_new")
-        directionality = cols[3].selectbox("Directionality", [0, 1, 2], key="dir_new")
-        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], key="like_new")
-        relevance = cols[5].selectbox("Relevance", [0, 1, 2], key="rel_new")
+        name = cols[0].text_input("Scenario", value="", key=f"name_new_{j}")
+        category = cols[1].selectbox("Risk Category", categories, key=f"cat_new_{j}")
+        severity = cols[2].selectbox("Severity", [0, 1, 2], key=f"sev_new_{j}")
+        directionality = cols[3].selectbox("Directionality", [0, 1, 2], key=f"dir_new_{j}")
+        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], key=f"like_new_{j}")
+        relevance = cols[5].selectbox("Relevance", [0, 1, 2], key=f"rel_new_{j}")
         if name:
             edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
