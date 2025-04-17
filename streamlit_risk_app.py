@@ -231,6 +231,18 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=risk.relevance if risk.relevance in [0, 1, 2] else 1, key=f"rel_{i}")
         edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
+        add_new = st.checkbox("Add a new risk manually")
+    if add_new:
+        cols = st.columns(6)
+        name = cols[0].text_input("Scenario", value="", key="name_new")
+        category = cols[1].selectbox("Risk Category", categories, key="cat_new")
+        severity = cols[2].selectbox("Severity", [0, 1, 2], key="sev_new")
+        directionality = cols[3].selectbox("Directionality", [0, 1, 2], key="dir_new")
+        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], key="like_new")
+        relevance = cols[5].selectbox("Relevance", [0, 1, 2], key="rel_new")
+        if name:
+            edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
+
     updated_inputs = edited_risks
 
     df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
