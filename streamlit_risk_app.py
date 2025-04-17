@@ -233,17 +233,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
 
     if "new_count" not in st.session_state:
         st.session_state.new_count = 0
-    col_add, col_remove = st.columns([1, 1])
-    with col_add:
-        st.markdown("&nbsp;", unsafe_allow_html=True)  # removes label spacing
-        if st.button("➕", key="add_row_btn"):
-            st.session_state.new_count += 1
-            st.rerun()
-    with col_remove:
-        st.markdown("&nbsp;", unsafe_allow_html=True)  # removes label spacing
-        if st.session_state.new_count > 0 and st.button("➖", key="remove_row_btn"):
-            st.session_state.new_count -= 1
-            st.rerun()
+    
 
     add_count = st.session_state.new_count
 
@@ -260,17 +250,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         if name:
             edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
-    col_add, col_remove = st.columns([1, 1])
-    with col_add:
-        st.markdown("&nbsp;", unsafe_allow_html=True)
-        if st.button("➕", key="add_row_btn_bottom"):
-            st.session_state.new_count += 1
-            st.rerun()
-    with col_remove:
-        st.markdown("&nbsp;", unsafe_allow_html=True)
-        if st.session_state.new_count > 0 and st.button("➖", key="remove_row_btn_bottom"):
-            st.session_state.new_count -= 1
-            st.rerun()
+    
 
     updated_inputs = edited_risks
 
