@@ -231,7 +231,8 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=risk.relevance if risk.relevance in [0, 1, 2] else 1, key=f"rel_{i}")
         edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
-    add_count = st.number_input("How many new risks do you want to add?", min_value=0, max_value=10, step=1, value=0, key="new_count")
+    with st.expander("➕ Add Scenario"):
+    add_count = st.number_input("Click '+' to add new rows", min_value=0, max_value=10, step=1, value=0, key="new_count")
     for j in range(add_count):
         cols = st.columns(6)
         name = cols[0].text_input("Scenario", value="", key=f"name_new_{j}")
