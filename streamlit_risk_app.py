@@ -233,7 +233,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
 
     if "new_count" not in st.session_state:
         st.session_state.new_count = 0
-    col_add, col_remove = st.columns([1, 1])
+    col_remove, col_add = st.columns([1, 1])
     with col_add:
         if st.button("➕ Add Scenario Row", key="add_row_btn"):
             st.session_state.new_count += 1
