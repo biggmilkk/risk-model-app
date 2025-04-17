@@ -237,7 +237,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
 
     add_count = st.session_state.new_count
 
-        with st.container():
+    with st.container():
         col1, col2 = st.columns([1, 1])
         with col1:
             if st.button("➕", key="add_row_btn_bottom_inline"):
