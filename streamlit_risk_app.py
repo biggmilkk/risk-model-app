@@ -231,7 +231,9 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=risk.relevance if risk.relevance in [0, 1, 2] else 1, key=f"rel_{i}")
         edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
-    add_count = st.session_state.get("new_count", 0)
+    if "new_count" not in st.session_state:
+        st.session_state.new_count = 0
+    add_count = st.session_state.new_count
     col_add, col_remove = st.columns([1,1])
     with col_add:
         if st.button("➕ Add Scenario Row"):
