@@ -71,7 +71,7 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
         })
 
     df = pd.DataFrame(rows)
-    max_possible_score = len(inputs) * 10
+    max_possible_score = len(inputs) * 8
     normalized_score = int(round((total_score / max_possible_score) * 10)) if max_possible_score > 0 else 0
 
     high_risks = [r for r in inputs if r.weighted_score() >= 6]
