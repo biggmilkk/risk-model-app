@@ -4,6 +4,7 @@ import pandas as pd
 import openai
 import json
 
+# Initialize OpenAI client
 client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 @dataclass
@@ -20,15 +21,21 @@ class RiskInput:
 
 
 def gpt_extract_risks(scenario_text):
+    # Full prompt preserved per specification
     prompt = f"""
     You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the following higher-level risk categories, and estimate its severity (0-2), relevance (0-2), directionality (0-2), and likelihood (0-2). Use whole numbers only.
 
     Risk Categories:
     1. Threat Environment (e.g., Critical Incident, Sustained Civil Unrest, Anti-American Sentiment, Status of Government, History of Resolution, Actions Taken by Local Government, Key Populations Being Targeted, Police/Military Presence, Observance of Lawlessness, Likelihood of Regional Conflict Spillover, Other Assistance Companies Issuing Warnings, Other Higher Ed Clients Discussing Evacuation, Closure of Educational Institutions)
+
     2. Operational Disruption (e.g., Impact Considerations, Location Considerations, Immediacy Considerations, Event Lead Time, Road Closures, Curfews, Disruptions to Mobile Voice/SMS/Data Services, Observance of Power Outages, Access to Fuel, Access to Food and Clean Water, Transportation Infrastructure, Airlines Limiting or Canceling Flights)
+
     3. Health & Medical Risk (e.g., Severity of Health Situation [Self or Official Report], Crisis24 Medical Assessment, Deviation from Baseline Medical History, Availability of Medical/Mental Health Treatment, Critical Medication Supply, Need for a Medical Escort, Strain on Local Medical Resources, Increased Transmission of Communicable Diseases, Access to MedEvac, Health Infrastructure Strain)
+
     4. Client Profile & Exposure (e.g., Undergraduate/Graduate/Staff, Supervision/Organizational Support, Program Type, Group Size, Field Site or Urban Environment, How Far Must Commute to Necessities, Housing/Shelter Security, When Travelers Intend to Leave, Airport Type, Access to Intelligence or Info Sharing, Safe Havens or Alternatives)
+
     5. Geo-Political & Intelligence Assessment (e.g., Severity of Crisis24 Alerts, Preexisting Crisis24 Location Intelligence Rating, Dynamic Risk Library Assessment, US State Department Travel Advisory, FCDO Travel Warning, Australia Smarttraveller Warning, Relative Concern of Crisis24 Personnel, Crisis24 Life Safety Assessment, CAT [Crisis Advisory Team] Activation, Organizational Risk Appetite, Existing Mitigations/Security Protocols)
+
     6. Infrastructure & Resource Stability (e.g., Environmental and Weather Risk, Changes in Local Climate, Disruptions to Communication, Internet Infrastructure, Power Grid Stability, Medical System Burden, Communications Breakdown, Relative Capabilities of Assistance Company)
 
     Use the following logic when assigning **Likelihood**:
@@ -137,8 +144,10 @@ if st.button("Analyze Scenario"):
         st.session_state.risks = gpt_extract_risks(scenario)
         st.session_state.show_editor = True
 
+# Initialize state
 if "risks" not in st.session_state:
     st.session_state.risks = []
+if "new_count" not in st.session_state:
     st.session_state.new_count = 0
 
 # Editor and summary
@@ -184,18 +193,14 @@ if st.session_state.get("show_editor"):
         if delete_new:
             st.session_state.new_count -= 1
             break
-        elif name:
+        if name:
             risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
-        # Add-row button
+    # Add-row button
     col_add, _ = st.columns([1, 5])
     with col_add:
-        if st.button("➕ Add row", key="add_row_new"):
+        if st.button("➕ Add row"):
             st.session_state.new_count += 1
-            try:
-                st.experimental_rerun()
-            except AttributeError:
-                pass
 
     # Summary and advice
     df_summary, total_score, final_score = calculate_risk_summary(risks)
