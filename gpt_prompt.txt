@@ -64,6 +64,43 @@ Group impacts stemming from the same root cause **only if they affect the same m
 
 However, **preserve separate risk entries** when the effects differ in nature (e.g., air vs. road), geography, or timing. Avoid excessive grouping that could overlook important distinctions in how risks impact clients.
 
+Special Guidance for Bombings and Explosions:
+
+Differentiate between intentional and unintentional explosions using context. Assign risk categories and scores accordingly.
+
+— Intentional Explosions (e.g., terrorism, targeted attacks, sabotage, crime)
+  These often involve:
+  - Improvised Explosive Devices (IEDs)
+  - Molotov cocktails
+  - Targeted blasts (e.g., government offices, protests, religious sites)
+  - Keywords: “bombing,” “attack,” “militant group,” “terrorist act,” “device detonated,” etc.
+
+  → Assign Category: Threat Environment  
+  → Severity: 1–2 depending on casualties or damage  
+  → Directionality: 0 if attack has been resolved or threat is reduced  
+  → Likelihood: Based on whether it is confirmed, ongoing, or speculative
+
+— Accidental or Environmental Explosions
+  Includes:
+  - Gas line explosions
+  - Industrial accidents
+  - Electrical faults
+  - WWII-era bomb disposal
+  - Equipment malfunction (e.g., AC or boiler explosions)
+
+  → Assign Category: Infrastructure & Resource Stability  
+  → Severity: 0–2 depending on impact  
+  → Directionality: 0 if threat has passed or resolved  
+  → Likelihood: 1 unless ongoing or officially confirmed
+
+Example:
+- “IED exploded outside embassy” → Threat Environment, Severity 2  
+- “Molotov thrown at police station” → Threat Environment, Severity 2  
+- “Gas cylinder exploded at cafe” → Infrastructure & Resource Stability, Severity 1  
+- “WWII bomb found and defused” → Infrastructure & Resource Stability, Severity 0, Directionality 0
+
+When uncertain about intent, use surrounding language as context. Unless there's evidence of malicious intent, treat as accidental.
+
     Return only a valid JSON array using this exact format:
 
     [
