@@ -44,6 +44,7 @@ def gpt_extract_risks(scenario_text):
     risks = []
     for entry in parsed:
         try:
+            entry.pop("directionality", None)
             risks.append(RiskInput(**entry))
         except Exception as e:
             st.warning(f"Failed to convert entry: {entry}")
@@ -220,7 +221,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
 
     col_add, _ = st.columns([1, 5])
     with col_add:
-        if st.button("➕", key="add_row_btn_bottom_inline"):
+        if st.button("➕ Add Scenario", key="add_row_btn_bottom_inline"):
             st.session_state.new_entries.append(
                 RiskInput("", 0, 0, 0, categories[0])
             )
