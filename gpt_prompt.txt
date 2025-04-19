@@ -50,6 +50,16 @@ Assign Likelihood = 2 when the scenario says transport disruption is likely or e
 - Example: “Protest will block roads in the city center.” → Likelihood = 2
 Avoid downgrading Likelihood just because the disruption hasn’t started yet. If the scenario clearly anticipates disruption, treat it as a likely operational impact.
 
+Hedged or Speculative Language = Likelihood 1
+Assign Likelihood = 1 if the scenario uses conditional or cautious phrasing such as:
+“may,” “could,” “might,” “possible,” “reportedly,” “being monitored,” “under consideration,” “cannot be ruled out”
+These terms indicate possibility, not certainty.
+Examples:
+- “Disruptions are possible” → Likelihood = 1
+- “Clashes between protesters and police cannot be ruled out” → Likelihood = 1
+- “Port closures could occur if tensions escalate” → Likelihood = 1
+Do not score these as Likelihood = 2 unless there is official confirmation or concrete action already underway.
+
 Common Misclassifications to Avoid:
 - Avoid assigning 2 for speculative risks (“might,” “could”) without confirmation.  
 - Don’t downgrade Likelihood just because an event hasn’t started — use the strength of the language to guide you.
