@@ -1,9 +1,10 @@
-import streamlit as st
+""import streamlit as st
 from dataclasses import dataclass
 import pandas as pd
 import openai
 from collections import Counter
 import json
+from uuid import uuid4
 
 client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -140,6 +141,7 @@ if st.button("Analyze Scenario"):
         if key not in keys_to_keep:
             del st.session_state[key]
 
+    st.session_state.session_id = str(uuid4())  # new session key for widget uniqueness
     st.session_state.risks = gpt_extract_risks(scenario)
     st.session_state.deleted_existing = set()
     st.session_state.new_entries = []
@@ -157,6 +159,8 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
         "Infrastructure & Resource Stability"
     ]
 
+    key_prefix = st.session_state.get("session_id", "")
+
     st.subheader("Mapped Risks and Scores")
     edited_risks = []
 
@@ -164,13 +168,13 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
         if i in st.session_state.deleted_existing:
             continue
         cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
-        name = cols[0].text_input("Scenario", value=risk.name, key=f"name_{i}")
-        category = cols[1].selectbox("Risk Category", categories, index=categories.index(risk.category), key=f"cat_{i}")
-        severity = cols[2].selectbox("Severity", [0, 1, 2], index=risk.severity, key=f"sev_{i}")
-        directionality = cols[3].selectbox("Directionality", [0, 1, 2], index=risk.directionality, key=f"dir_{i}")
-        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], index=risk.likelihood, key=f"like_{i}")
-        relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=risk.relevance, key=f"rel_{i}")
-        if cols[6].button("🗑️", key=f"del_existing_{i}"):
+        name = cols[0].text_input("Scenario", value=risk.name, key=f"{key_prefix}_name_{i}")
+        category = cols[1].selectbox("Risk Category", categories, index=categories.index(risk.category), key=f"{key_prefix}_cat_{i}")
+        severity = cols[2].selectbox("Severity", [0, 1, 2], index=risk.severity, key=f"{key_prefix}_sev_{i}")
+        directionality = cols[3].selectbox("Directionality", [0, 1, 2], index=risk.directionality, key=f"{key_prefix}_dir_{i}")
+        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], index=risk.likelihood, key=f"{key_prefix}_like_{i}")
+        relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=risk.relevance, key=f"{key_prefix}_rel_{i}")
+        if cols[6].button("🗑️", key=f"{key_prefix}_del_existing_{i}"):
             st.session_state.deleted_existing.add(i)
             st.rerun()
         else:
