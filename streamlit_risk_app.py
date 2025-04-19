@@ -162,12 +162,16 @@ if st.button("Analyze Scenario"):
             del st.session_state[key]
 
     st.session_state.session_id = str(uuid4())
-    st.session_state.risks = gpt_extract_risks(scenario)
-    st.session_state.deleted_existing = set()
-    st.session_state.new_entries = []
-    st.session_state.show_editor = True
-    st.session_state.alert_severity_used = alert_severity
-    st.rerun()
+    risks = gpt_extract_risks(scenario)
+    if risks:
+        st.session_state.risks = risks
+        st.session_state.deleted_existing = set()
+        st.session_state.new_entries = []
+        st.session_state.show_editor = True
+        st.session_state.alert_severity_used = alert_severity
+        st.rerun()
+    else:
+        st.error("No risks were identified. Please check your scenario.")
 
 if st.session_state.get("show_editor") and st.session_state.get("risks") is not None:
     risks = st.session_state.risks
