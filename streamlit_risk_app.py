@@ -2,7 +2,7 @@ import streamlit as st
 from dataclasses import dataclass
 import pandas as pd
 import openai
-from collections import Counter
+import json
 
 client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -16,7 +16,8 @@ class RiskInput:
     category: str
 
     def weighted_score(self) -> int:
-        return (self.severity * 1) + (self.relevance * 2) + (self.directionality * 1) + (self.likelihood * 1)
+        return self.severity * 1 + self.relevance * 2 + self.directionality * 1 + self.likelihood * 1
+
 
 def gpt_extract_risks(scenario_text):
     prompt = f"""
@@ -108,12 +109,11 @@ However, **preserve separate risk entries** when the effects differ in nature (e
         messages=[{"role": "user", "content": prompt}],
         temperature=0
     )
-    import json
-    content = response.choices[0].message.content
 
+    content = response.choices[0].message.content
     try:
         parsed = json.loads(content)
-    except Exception as e:
+    except json.JSONDecodeError:
         st.error("Failed to parse GPT response.")
         st.code(content, language="json")
         return []
@@ -122,14 +122,12 @@ However, **preserve separate risk entries** when the effects differ in nature (e
     for entry in parsed:
         try:
             risks.append(RiskInput(**entry))
-        except Exception as e:
+        except Exception:
             st.warning(f"Failed to convert entry: {entry}")
-            st.exception(e)
-
     if not risks:
         st.warning("Parsed successfully, but no valid risks were returned.")
-
     return risks
+
 
 def calculate_risk_summary(inputs):
     rows = []
@@ -138,30 +136,25 @@ def calculate_risk_summary(inputs):
         score = risk.weighted_score()
         total_score += score
         rows.append({
-        "Scenario": risk.name,
-        "Risk Category": risk.category,
-        "Severity": risk.severity,
-        "Directionality": risk.directionality,
-        "Likelihood": risk.likelihood,
-        "Relevance": risk.relevance,
+            "Scenario": risk.name,
+            "Risk Category": risk.category,
+            "Severity": risk.severity,
+            "Directionality": risk.directionality,
+            "Likelihood": risk.likelihood,
+            "Relevance": risk.relevance,
             "Weighted Score": score
         })
-
     df = pd.DataFrame(rows)
     max_possible_score = len(inputs) * 10
     normalized_score = int(round((total_score / max_possible_score) * 10)) if max_possible_score > 0 else 0
-
     categories = [r.category for r in inputs]
     total_categories = len(categories)
     unique_categories = len(set(categories))
-    if total_categories > 0:
-        clustering_ratio = (total_categories - unique_categories) / total_categories
-        cluster_bonus = min(round(clustering_ratio * 2), 2)
-    else:
-        cluster_bonus = 0
-
+    clustering_ratio = (total_categories - unique_categories) / total_categories if total_categories > 0 else 0
+    cluster_bonus = min(round(clustering_ratio * 2), 2)
     final_score = min(normalized_score + cluster_bonus, 10)
     return df, total_score, final_score
+
 
 def advice_matrix(score: int, tolerance: str):
     if score <= 3:
@@ -172,29 +165,26 @@ def advice_matrix(score: int, tolerance: str):
         risk_level = "High"
     else:
         risk_level = "Extreme"
-
     if tolerance == "Low":
-        if risk_level in ["High", "Extreme"]:
-            advice = "Crisis24 Proactive Engagement"
-        elif risk_level == "Moderate":
-            advice = "Heightened Vigilance"
-        else:
-            advice = "Normal Precautions"
+        advice = (
+            "Crisis24 Proactive Engagement"
+            if risk_level in ["High", "Extreme"] else
+            "Heightened Vigilance" if risk_level == "Moderate" else
+            "Normal Precautions"
+        )
     elif tolerance == "Moderate":
-        if risk_level == "Extreme":
-            advice = "Consider Crisis24 Consultation"
-        elif risk_level == "High":
-            advice = "Heightened Vigilance"
-        else:
-            advice = "Normal Precautions"
+        advice = (
+            "Consider Crisis24 Consultation"
+            if risk_level == "Extreme" else
+            "Heightened Vigilance" if risk_level == "High" else
+            "Normal Precautions"
+        )
     elif tolerance == "High":
-        if risk_level == "Extreme":
-            advice = "Heightened Vigilance"
-        else:
-            advice = "Normal Precautions"
+        advice = (
+            "Heightened Vigilance" if risk_level == "Extreme" else "Normal Precautions"
+        )
     else:
         advice = "No Guidance Available"
-
     return risk_level, advice
 
 st.set_page_config(layout="wide")
@@ -208,7 +198,10 @@ if st.button("Analyze Scenario"):
         st.session_state.risks = gpt_extract_risks(scenario)
         st.session_state.show_editor = True
 
-if st.session_state.get("show_editor") and st.session_state.get("risks"):
+if "risks" not in st.session_state:
+    st.session_state.risks = []
+
+if st.session_state.get("show_editor") and st.session_state.risks:
     risks = st.session_state.risks
     categories = [
         "Threat Environment",
@@ -216,11 +209,9 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         "Health & Medical Risk",
         "Client Profile & Exposure",
         "Geo-Political & Intelligence Assessment",
-        "Infrastructure & Resource Stability"
+        "Infrastructure & Resource Stability",
     ]
-    updated_inputs = []
     st.subheader("Mapped Risks and Scores")
-    edited_risks = []
     for i, risk in enumerate(risks):
         cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
         name = cols[0].text_input("Scenario", value=risk.name, key=f"name_{i}")
@@ -229,13 +220,13 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         directionality = cols[3].selectbox("Directionality", [0, 1, 2], index=risk.directionality, key=f"dir_{i}")
         likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], index=risk.likelihood, key=f"like_{i}")
         relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=risk.relevance, key=f"rel_{i}")
-        delete = cols[6].button("🗑️", key=f"del_existing_{i}")
-        if not delete:
-            edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
-
+        if cols[6].button("🗑️", key=f"del_{i}"):
+            st.session_state.risks.pop(i)
+            st.experimental_rerun()
+        else:
+            st.session_state.risks[i] = RiskInput(name, severity, relevance, directionality, likelihood, category)
     if "new_count" not in st.session_state:
         st.session_state.new_count = 0
-
     st.markdown("---")
     for j in range(st.session_state.new_count):
         cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
@@ -245,25 +236,18 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         directionality = cols[3].selectbox("Directionality", [0, 1, 2], key=f"dir_new_{j}")
         likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], key=f"like_new_{j}")
         relevance = cols[5].selectbox("Relevance", [0, 1, 2], key=f"rel_new_{j}")
-        delete = cols[6].button("🗑️", key=f"del_new_{j}")
-
-        if name and not delete:
-            edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
-
-    st.markdown("")
+        if cols[6].button("🗑️", key=f"del_new_{j}"):
+            continue
+        if name:
+            st.session_state.risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
     col_add, _ = st.columns([1, 5])
     with col_add:
         if st.button("➕", key="add_row_btn_bottom_inline"):
             st.session_state.new_count += 1
-            st.rerun()
-
-    updated_inputs = edited_risks
-
-    df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
+            st.experimental_rerun()
+    df_summary, aggregated_score, final_score = calculate_risk_summary(st.session_state.risks)
     risk_level, guidance = advice_matrix(final_score, tolerance)
-
     df_summary.index = df_summary.index + 1
-
     st.markdown("**Scores:**")
     st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
     st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
