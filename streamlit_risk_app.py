@@ -37,7 +37,6 @@ def gpt_extract_risks(scenario_text):
     6. Infrastructure & Resource Stability (e.g., Environmental and Weather Risk, Changes in Local Climate, Disruptions to Communication, Internet Infrastructure, Power Grid Stability, Medical System Burden, Communications Breakdown, Relative Capabilities of Assistance Company)
 
     Use the following logic when assigning **Likelihood**:
-
     - 0 (Unlikely): speculative, rare, uncertain
     - 1 (Possible): monitoring, could/may/might
     - 2 (Likely): active, confirmed, ongoing
@@ -80,3 +79,105 @@ def gpt_extract_risks(scenario_text):
         st.code(content, language="json")
         return []
     return [RiskInput(**e) for e in parsed if isinstance(e, dict)]
+
+
+def calculate_risk_summary(inputs):
+    rows, total = [], 0
+    for r in inputs:
+        score = r.weighted_score()
+        total += score
+        rows.append({
+            "Scenario": r.name,
+            "Risk Category": r.category,
+            "Severity": r.severity,
+            "Directionality": r.directionality,
+            "Likelihood": r.likelihood,
+            "Relevance": r.relevance,
+            "Weighted Score": score
+        })
+    df = pd.DataFrame(rows)
+    max_score = len(inputs) * 10
+    norm_score = int(round((total / max_score) * 10)) if max_score else 0
+    uniq = len(set(r.category for r in inputs))
+    bonus = min(round(((len(inputs) - uniq) / len(inputs)) * 2), 2) if inputs else 0
+    final = min(norm_score + bonus, 10)
+    return df, total, final
+
+
+def advice_matrix(score: int, tolerance: str):
+    if score <= 3:
+        risk_level = "Low"
+    elif score <= 6:
+        risk_level = "Moderate"
+    elif score <= 8:
+        risk_level = "High"
+    else:
+        risk_level = "Extreme"
+    if tolerance == "Low":
+        advice = (
+            "Crisis24 Proactive Engagement" if risk_level in ["High", "Extreme"] else
+            "Heightened Vigilance" if risk_level == "Moderate" else
+            "Normal Precautions"
+        )
+    elif tolerance == "Moderate":
+        advice = (
+            "Consider Crisis24 Consultation" if risk_level == "Extreme" else
+            "Heightened Vigilance" if risk_level == "High" else
+            "Normal Precautions"
+        )
+    else:
+        advice = "Heightened Vigilance" if risk_level == "Extreme" else "Normal Precautions"
+    return risk_level, advice
+
+
+st.set_page_config(layout="wide")
+st.title("AI-Assisted Risk Model & Advice Matrix")
+
+scenario = st.text_area("Enter Threat Scenario")
+tolerance = st.selectbox("Select Client Risk Tolerance", ["Low", "Moderate", "High"], index=1)
+
+if st.button("Analyze Scenario"):
+    with st.spinner("Analyzing..."):
+        st.session_state.risks = gpt_extract_risks(scenario)
+        st.session_state.show_editor = True
+
+if "risks" not in st.session_state:
+    st.session_state.risks = []
+
+if st.session_state.get("show_editor") and st.session_state.risks:
+    risks = st.session_state.risks
+    categories = [
+        "Threat Environment",
+        "Operational Disruption",
+        "Health & Medical Risk",
+        "Client Profile & Exposure",
+        "Geo-Political & Intelligence Assessment",
+        "Infrastructure & Resource Stability"
+    ]
+    st.subheader("Mapped Risks and Scores")
+    for i, r in enumerate(risks):
+        cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
+        name = cols[0].text_input("Scenario", value=r.name, key=f"name_{i}")
+        category = cols[1].selectbox("Risk Category", categories, index=categories.index(r.category), key=f"cat_{i}")
+        severity = cols[2].selectbox("Severity", [0, 1, 2], index=r.severity, key=f"sev_{i}")
+        directionality = cols[3].selectbox("Directionality", [0, 1, 2], index=r.directionality, key=f"dir_{i}")
+        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], index=r.likelihood, key=f"like_{i}")
+        relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=r.relevance, key=f"rel_{i}")
+        if cols[6].button("🗑️", key=f"del_{i}"):
+            risks.pop(i)
+            break
+        else:
+            risks[i] = RiskInput(name, severity, relevance, directionality, likelihood, category)
+
+    if "new_count" not in st.session_state:
+        st.session_state.new_count = 0
+
+    st.markdown("---")
+    for j in range(st.session_state.new_count):
+        cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
+        name = cols[0].text_input("Scenario", key=f"name_new_{j}")
+        category = cols[1].selectbox("Risk Category", categories, key=f"cat_new_{j}")
+        severity = cols[2].selectbox("Severity", [0, 1, 2], key=f"sev_new_{j}")
+        directionality = cols[3].selectbox("Directionality", [0, 1, 2], key=f"dir_new_{j}")
+        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], key=f"like_new_{j}")
+        relevance = cols[5].selectbox("Relevance", [0, 1, 2], key=f"rel_new_{
