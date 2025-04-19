@@ -257,6 +257,9 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
             st.session_state.new_count -= 1
             st.rerun()
 
+        if name:
+            edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
+
         st.session_state.new_count -= 1
         st.rerun()
         name = cols[0].text_input("Scenario", value="", key=f"name_new_{j}")
