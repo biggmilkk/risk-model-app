@@ -14,55 +14,39 @@ prompt = f"""
 
     6. Infrastructure & Resource Stability (e.g., Environmental and Weather Risk, Changes in Local Climate, Disruptions to Communication, Internet Infrastructure, Power Grid Stability, Medical System Burden, Communications Breakdown, Relative Capabilities of Assistance Company)
 
-    Use the following logic when assigning **Likelihood**:
+Use the following logic to determine **Likelihood (0–2)** for each risk:
 
-- 0 (Unlikely): Use for risks that are speculative, rare, or expressed with weak/moderate conditional language. Look for: “unlikely,” “improbable,” “uncertain.”
+- **0 = Unlikely**  
+  Use for speculative or rare risks, or when phrasing signals uncertainty.  
+  Keywords: “unlikely,” “improbable,” “uncertain,” “no reports,” “not expected”  
+  Also use if the event has been resolved or the threat is no longer active.
 
-- 1 (Possible): Use for risks that are mentioned or under monitoring but have unclear certainty. Keywords: “possible,” “could,” “might,” “may,” “potential.” Use this for most forecast-based risks unless the scenario clearly confirms the event will happen.
+- **1 = Possible**  
+  Use for potential risks under observation or with unclear certainty.  
+  Keywords: “possible,” “could,” “might,” “may,” “potential,” “being monitored”  
+  This applies to forecast-based risks without confirmation or evidence of imminent impact.
 
-- 2 (Likely): Use if the risk is highly probable, actively occurring, or has been confirmed by official sources or real-time developments. This includes active alerts, confirmed incidents, or ongoing events. Keywords: “likely,” “expected,” “currently happening,” “ongoing,” or evidence of active emergency response.
+- **2 = Likely**  
+  Use if the risk is confirmed, ongoing, or highly probable, especially with official alerts.  
+  Keywords: “likely,” “expected,” “confirmed,” “ongoing,” “currently happening”  
+  Apply when government agencies, media, or scenario text clearly indicate that a risk **is happening** or **very likely to happen.**
 
-Give a **Likelihood of 2** if the event is actively occurring, confirmed by reports or official alerts, or underway at the time of reporting. For example, active fires, confirmed transport disruptions, evacuations in progress, or emergency responses in motion should all be considered high likelihood.
-
-Avoid assigning Likelihood = 1 to ongoing or already confirmed disruptions just because they are phrased as possibilities in adjacent context.
-
-If authorities or credible reporting suggests a high probability of a development—such as heightened security after a deadly attack—this should also be scored as **Likelihood = 2**. For example, "heightened security will likely be maintained" reflects a strong expectation and should not be downgraded to 1.
-
-Use context to differentiate between speculative responses (e.g., “may deploy security forces”) and confident operational forecasts (e.g., “will likely maintain heightened security”). The latter implies a high-certainty action and should receive **Likelihood = 2** if stated clearly.
-
-If authorities or scenario text indicates that disruptions are “likely,” “expected,” or “probable,” especially in operational or logistical domains (e.g., transport, security), this should be scored as **Likelihood = 2**. This includes phrases like “localized transport disruptions are likely” or “clashes are expected.”
-
-Do not downscore these situations just because the event hasn't yet occurred — the language strongly indicates high confidence and should be reflected accordingly.
-
-Do **not** assign Likelihood = 2 when phrasing includes soft or tentative language such as “may,” “could,” “might,” or “are considering,” unless paired with official confirmation or additional strong indicators. These represent **possibility**, not certainty. For example:
-- “Officials may impose movement restrictions” → Likelihood = 1
-- “Retaliatory attacks are possible” → Likelihood = 1
-- “Clashes cannot be ruled out” → Likelihood = 1
-These are speculative unless accompanied by concrete alerts, patterns, or actionable intelligence indicating strong probability.
+Scoring Principles:
+- If a risk is described with strong indicators or confirmed alerts (e.g., “Firefighters are responding to a blaze”), assign **Likelihood = 2**.
+- If language is tentative (e.g., “could cause flooding”), assign **Likelihood = 1**.
+- If the threat is mitigated or the event is over (e.g., “bomb defused”), assign **Likelihood = 0**.
+- Don’t assign **Likelihood = 2** just because a word like “risk” is used. Focus on evidence and confirmed developments.
 
 Examples:
-- “Firefighters are responding to a blaze” → Likelihood = 2
-- “Authorities have evacuated a university due to a fire” → Likelihood = 2
-- “Power outages have occurred” → Likelihood = 2
-- “Authorities **could** issue evacuation orders” → Likelihood = 1
-- “Urban flooding **may** occur” → Likelihood = 1
-- “Flooding is **ongoing**” or “Evacuation **underway**” → Likelihood = 2
-- “The Bharatiya Janata Party (BJP) will march on April 17…” → Likelihood = 2
-- “Organizers expect thousands to attend a planned protest” → Likelihood = 2
+- “Firefighters are responding to a blaze” → Likelihood = 2  
+- “Evacuation underway” → Likelihood = 2  
+- “Authorities could issue a curfew” → Likelihood = 1  
+- “Storm may cause flooding” → Likelihood = 1  
+- “A bomb was safely defused” → Likelihood = 0  
 
-Assigning all risks a Likelihood of 2 is incorrect and inflates the model. Do not assign a 2 unless the specific line describing the risk includes words or evidence supporting high certainty.
-
-If a threat described in the scenario has already been resolved or is no longer active (e.g., a successful rescue, arrest, de-escalation), reflect this in the scoring:
-- Set **directionality** to 0 (improving) if the situation has been mitigated or resolved.
-- Lower the **severity** and **likelihood** accordingly.
-- Do not generate risks for events that have concluded unless there are relevant **ongoing** implications or residual risks (e.g., reputational risk, recurring threat).
-
-Example:
-- “A kidnapped individual was rescued and the suspects were killed” → Directionality = 0, Likelihood = 0 or 1, Severity = 0 or 1 depending on ongoing risk.
-
-Group impacts stemming from the same root cause **only if they affect the same mode of operation, area, and timeframe**. For example, if both road closures and traffic delays are caused by snow in the same region and time window, combine them as “Winter storm-related road transport disruption.”
-
-However, **preserve separate risk entries** when the effects differ in nature (e.g., air vs. road), geography, or timing. Avoid excessive grouping that could overlook important distinctions in how risks impact clients.
+Common Misclassifications to Avoid:
+- Avoid assigning 2 for speculative risks (“might,” “could”) without confirmation.  
+- Don’t downgrade Likelihood just because an event hasn’t started — use the strength of the language to guide you.
 
 Special Guidance for Bombings and Explosions:
 
@@ -100,6 +84,37 @@ Example:
 - “WWII bomb found and defused” → Infrastructure & Resource Stability, Severity 0, Directionality 0
 
 When uncertain about intent, use surrounding language as context. Unless there's evidence of malicious intent, treat as accidental.
+
+Resolved or Non-Active Threats:
+If a threat described in the scenario has already been resolved or is no longer active (e.g., rescue completed, suspects neutralized, fire extinguished), reflect this in the scoring:
+
+- Set **Directionality = 0** to indicate improvement or resolution.
+- Set **Likelihood = 0 or 1**, depending on whether there's a chance of recurrence or residual effects.
+- Set **Severity = 0 or 1**, based on remaining implications (e.g., reputational, political).
+- Do **not** create risks for events that are completely concluded **unless** ongoing impacts remain relevant.
+
+Example:
+- “A kidnapped individual was rescued and the suspects were killed”  
+  → Directionality = 0, Likelihood = 0 or 1, Severity = 0 or 1
+
+---
+
+Grouping Risks from a Single Root Cause:
+Only group multiple effects into a single risk if:
+
+- They share the **same root cause**
+- They occur in the **same timeframe**
+- They affect the **same type of system** (e.g., road transport, public health, communications)
+
+Example:  
+“Winter storm-related road transport disruption” can combine both “road closures” and “traffic delays” caused by snowfall in the same area and timeframe.
+
+Keep risks separate if they:
+- Affect **different sectors** (e.g., road vs air transport)
+- Occur at **different times** or **different locations**
+- Represent **distinct operational implications**
+
+Avoid over-grouping that might obscure the nuance of how different risks impact different aspects of a client's operations.
 
     Return only a valid JSON array using this exact format:
 
