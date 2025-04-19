@@ -187,11 +187,15 @@ if st.session_state.get("show_editor"):
         elif name:
             risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
-    # Add-row button
+        # Add-row button
     col_add, _ = st.columns([1, 5])
     with col_add:
         if st.button("➕ Add row", key="add_row_new"):
             st.session_state.new_count += 1
+            try:
+                st.experimental_rerun()
+            except AttributeError:
+                pass
 
     # Summary and advice
     df_summary, total_score, final_score = calculate_risk_summary(risks)
