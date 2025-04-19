@@ -158,7 +158,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
         relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=risk.relevance, key=f"rel_{i}")
         if cols[6].button("🗑️", key=f"del_existing_{i}"):
             st.session_state.deleted_existing.add(i)
-            st.experimental_rerun()
+            st.rerun()
         else:
             edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
@@ -173,7 +173,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
         relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=row.relevance, key=f"rel_new_{j}")
         if cols[6].button("🗑️", key=f"del_new_{j}"):
             st.session_state.new_entries.pop(j)
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.session_state.new_entries[j] = RiskInput(name, severity, relevance, directionality, likelihood, category)
 
@@ -183,7 +183,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
             st.session_state.new_entries.append(
                 RiskInput("", 0, 0, 0, 0, categories[0])
             )
-            st.experimental_rerun()
+            st.rerun()
 
     updated_inputs = edited_risks + st.session_state.new_entries
 
