@@ -44,6 +44,12 @@ Examples:
 - “Storm may cause flooding” → Likelihood = 1  
 - “A bomb was safely defused” → Likelihood = 0  
 
+Assign Likelihood = 2 when the scenario says transport disruption is likely or expected, especially if caused by protests, marches, emergency response, or natural events.
+- Example: “Localized road and rail transport disruptions are likely.” → Likelihood = 2
+- Example: “Flight delays are expected due to storm activity.” → Likelihood = 2
+- Example: “Protest will block roads in the city center.” → Likelihood = 2
+Avoid downgrading Likelihood just because the disruption hasn’t started yet. If the scenario clearly anticipates disruption, treat it as a likely operational impact.
+
 Common Misclassifications to Avoid:
 - Avoid assigning 2 for speculative risks (“might,” “could”) without confirmation.  
 - Don’t downgrade Likelihood just because an event hasn’t started — use the strength of the language to guide you.
