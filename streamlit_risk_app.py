@@ -22,8 +22,6 @@ def gpt_extract_risks(scenario_text):
     prompt = f"""
     You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the following higher-level risk categories, and estimate its severity (0-2), relevance (0-2), directionality (0-2), and likelihood (0-2). Use whole numbers only.
 
-    You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the following higher-level risk categories, and estimate its severity (0-2), relevance (0-2), directionality (0-2), and likelihood (0-2). Use whole numbers only.
-
     Risk Categories:
     1. Threat Environment (e.g., Critical Incident, Sustained Civil Unrest, Anti-American Sentiment, Status of Government, History of Resolution, Actions Taken by Local Government, Key Populations Being Targeted, Police/Military Presence, Observance of Lawlessness, Likelihood of Regional Conflict Spillover, Other Assistance Companies Issuing Warnings, Other Higher Ed Clients Discussing Evacuation, Closure of Educational Institutions)
 
@@ -87,7 +85,7 @@ Example:
 
 However, **preserve separate risk entries** when the effects differ in nature (e.g., air vs. road), geography, or timing. Avoid excessive grouping that could overlook important distinctions in how risks impact clients.
 
-    Return only a valid JSON array like this:
+    Return the result in this exact JSON format:
     [
       {{
         "name": "Short description of the risk",
@@ -222,7 +220,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
     st.subheader("Mapped Risks and Scores")
     edited_risks = []
     for i, risk in enumerate(risks):
-        cols = st.columns(6)
+        cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
         name = cols[0].text_input("Scenario", value=risk.name, key=f"name_{i}")
         category = cols[1].selectbox("Risk Category", categories, index=categories.index(risk.category), key=f"cat_{i}")
         severity = cols[2].selectbox("Severity", [0, 1, 2], index=risk.severity if risk.severity in [0, 1, 2] else 1, key=f"sev_{i}")
@@ -262,7 +260,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
     df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
     risk_level, guidance = advice_matrix(final_score, tolerance)
 
-    df_summary.index = df_summary.index + 1  # Start numbering from 1
+    df_summary.index = df_summary.index + 1
 
     st.markdown("**Scores:**")
     st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
