@@ -72,88 +72,11 @@ def gpt_extract_risks(scenario_text):
         messages=[{"role":"user","content":prompt}],
         temperature=0
     )
+    content = response.choices[0].message.content
     try:
-        parsed = json.loads(response.choices[0].message.content)
+        parsed = json.loads(content)
     except json.JSONDecodeError:
         st.error("Failed to parse GPT response.")
-        st.code(response.choices[0].message.content, language="json")
+        st.code(content, language="json")
         return []
-    return [RiskInput(**e) for e in parsed if isinstance(e, dict)](**e) for e in parsed if isinstance(e, dict)]
-
-
-def calculate_risk_summary(inputs):
-    rows, total = [], 0
-    for r in inputs:
-        s = r.weighted_score(); total += s
-        rows.append({
-            "Scenario":r.name,
-            "Risk Category":r.category,
-            "Severity":r.severity,
-            "Directionality":r.directionality,
-            "Likelihood":r.likelihood,
-            "Relevance":r.relevance,
-            "Weighted Score":s
-        })
-    df = pd.DataFrame(rows)
-    max_s = len(inputs)*10
-    norm = int(round((total/max_s)*10)) if max_s else 0
-    uniq = len(set(r.category for r in inputs))
-    bonus = min(round(((len(inputs)-uniq)/len(inputs))*2),2) if inputs else 0
-    return df, total, min(norm+bonus,10)
-
-
-def advice_matrix(score: int, tolerance: str):
-    lvl = "Low" if score<=3 else "Moderate" if score<=6 else "High" if score<=8 else "Extreme"
-    if tolerance=="Low": adv = "Crisis24 Proactive Engagement" if lvl in ["High","Extreme"] else "Heightened Vigilance" if lvl=="Moderate" else "Normal Precautions"
-    elif tolerance=="Moderate": adv = "Consider Crisis24 Consultation" if lvl=="Extreme" else "Heightened Vigilance" if lvl=="High" else "Normal Precautions"
-    else: adv = "Heightened Vigilance" if lvl=="Extreme" else "Normal Precautions"
-    return lvl, adv
-
-st.set_page_config(layout="wide")
-st.title("AI-Assisted Risk Model & Advice Matrix")
-
-scenario = st.text_area("Enter Threat Scenario")
-tolerance = st.selectbox("Select Client Risk Tolerance",["Low","Moderate","High"],index=1)
-
-if st.button("Analyze Scenario"):
-    with st.spinner("Analyzing..."):
-        st.session_state.risks = gpt_extract_risks(scenario)
-        st.session_state.show_editor = True
-
-if "risks" not in st.session_state: st.session_state.risks=[]
-
-if st.session_state.get("show_editor") and st.session_state.risks:
-    risks=st.session_state.risks
-    cats=["Threat Environment","Operational Disruption","Health & Medical Risk","Client Profile & Exposure","Geo-Political & Intelligence Assessment","Infrastructure & Resource Stability"]
-    st.subheader("Mapped Risks and Scores")
-    for i,r in enumerate(risks):
-        cols=st.columns([2,2,1,1,1,1,0.5])
-        n=cols[0].text_input("Scenario",value=r.name,key=f"n{i}")
-        c=cols[1].selectbox("Risk Category",cats,index=cats.index(r.category),key=f"c{i}")
-        sev=cols[2].selectbox("Severity",[0,1,2],index=r.severity,key=f"s{i}")
-        dir=cols[3].selectbox("Directionality",[0,1,2],index=r.directionality,key=f"d{i}")
-        lik=cols[4].selectbox("Likelihood",[0,1,2],index=r.likelihood,key=f"l{i}")
-        rel=cols[5].selectbox("Relevance",[0,1,2],index=r.relevance,key=f"e{i}")
-        if cols[6].button("🗑️",key=f"del{i}"):
-            risks.pop(i); break
-        else: risks[i]=RiskInput(n,sev,rel,dir,lik,c)
-    if "new_count" not in st.session_state: st.session_state.new_count=0
-    st.markdown("---")
-    for j in range(st.session_state.new_count):
-        cols=st.columns([2,2,1,1,1,1,0.5])
-        n=cols[0].text_input("Scenario",key=f"nn{j}")
-        c=cols[1].selectbox("Risk Category",cats,key=f"cc{j}")
-        sev=cols[2].selectbox("Severity",[0,1,2],key=f"ss{j}")
-        dir=cols[3].selectbox("Directionality",[0,1,2],key=f"dd{j}")
-        lik=cols[4].selectbox("Likelihood",[0,1,2],key=f"ll{j}")
-        rel=cols[5].selectbox("Relevance",[0,1,2],key=f"ee{j}")
-        if n: risks.append(RiskInput(n,sev,rel,dir,lik,c))
-    col_add,_=st.columns([1,5])
-    with col_add:
-        if st.button("➕ Add row"): st.session_state.new_count+=1
-    df,tot,fin=calculate_risk_summary(risks)
-    lvl,adv=advice_matrix(fin,tolerance)
-    st.markdown(f"**Aggregated Risk Score:** {tot}")
-    st.markdown(f"**Assessed Risk Score (1–10):** {fin}")
-    st.markdown(f"**Risk Level:** {lvl}")
-    st.markdown(f"**Advice for {tolerance} Tolerance:** {adv}")
+    return [RiskInput(**e) for e in parsed if isinstance(e, dict)]
