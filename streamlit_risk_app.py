@@ -247,7 +247,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
 
     for j in range(add_count):
         cols = st.columns([1, 1, 1, 1, 1, 1])
-        if st.button("🗑️", key=f"del_new_{j}"):
+            if st.button("🗑️", key=f"del_new_{j}"):
         st.session_state.new_count -= 1
         st.rerun()
         name = cols[0].text_input("Scenario", value="", key=f"name_new_{j}")
