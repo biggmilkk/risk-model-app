@@ -173,7 +173,7 @@ if st.session_state.get("show_editor") and st.session_state.risks:
         st.session_state.new_count = 0
 
     st.markdown("---")
-        for j in range(st.session_state.new_count):
+    for j in range(st.session_state.new_count):
         cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
         name = cols[0].text_input("Scenario", key=f"name_new_{j}")
         category = cols[1].selectbox("Risk Category", categories, key=f"cat_new_{j}")
@@ -185,6 +185,7 @@ if st.session_state.get("show_editor") and st.session_state.risks:
             risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
     # Button to add a new blank row
+    col_add, _ = st.columns([1, 5])
     col_add, _ = st.columns([1, 5])
     with col_add:
         if st.button("➕ Add row"):
