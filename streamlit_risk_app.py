@@ -154,7 +154,7 @@ if "alert_severity_level" not in st.session_state:
 if "alert_severity_used" not in st.session_state:
     st.session_state["alert_severity_used"] = None
 
-st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", value=st.session_state["scenario_text"])
+st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", value=st.session_state["scenario_text"], height=300)
 st.session_state["tolerance"] = st.selectbox("Select Client Risk Tolerance", ["Low", "Moderate", "High"], index=["Low", "Moderate", "High"].index(st.session_state["tolerance"]))
 st.session_state["use_alert_severity"] = st.checkbox("Include source alert severity rating", value=st.session_state["use_alert_severity"])
 if st.session_state["use_alert_severity"]:
