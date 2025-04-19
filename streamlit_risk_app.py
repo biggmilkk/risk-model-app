@@ -147,8 +147,9 @@ if st.button("Analyze Scenario"):
 # Initialize state
 if "risks" not in st.session_state:
     st.session_state.risks = []
-if "new_count" not in st.session_state:
-    st.session_state.new_count = 0
+# List to track uncommitted new rows
+if "new_rows" not in st.session_state:
+    st.session_state.new_rows = []
 
 # Editor and summary
 if st.session_state.get("show_editor"):
@@ -181,28 +182,33 @@ if st.session_state.get("show_editor"):
     st.markdown("---")
 
     # New risk rows
-    for j in range(st.session_state.new_count):
+    for idx in range(len(st.session_state.new_rows)):
         cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
-        name = cols[0].text_input("Scenario", key=f"name_new_{j}")
-        category = cols[1].selectbox("Risk Category", categories, key=f"cat_new_{j}")
-        severity = cols[2].selectbox("Severity", [0, 1, 2], key=f"sev_new_{j}")
-        directionality = cols[3].selectbox("Directionality", [0, 1, 2], key=f"dir_new_{j}")
-        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], key=f"like_new_{j}")
-        relevance = cols[5].selectbox("Relevance", [0, 1, 2], key=f"rel_new_{j}")
-        delete_new = cols[6].button("🗑️", key=f"del_new_{j}")
-        if delete_new:
-            st.session_state.new_count -= 1
-            break
-        if name:
+        name = cols[0].text_input("Scenario", key=f"new_name_{idx}")
+        category = cols[1].selectbox("Risk Category", categories, key=f"new_cat_{idx}")
+        severity = cols[2].selectbox("Severity", [0, 1, 2], key=f"new_sev_{idx}")
+        directionality = cols[3].selectbox("Directionality", [0, 1, 2], key=f"new_dir_{idx}")
+        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], key=f"new_like_{idx}")
+        relevance = cols[5].selectbox("Relevance", [0, 1, 2], key=f"new_rel_{idx}")
+        # Delete this placeholder row
+        if cols[6].button("🗑️", key=f"del_new_{idx}", on_click=lambda i=idx: st.session_state.new_rows.pop(i)):
+            pass
+        # Commit if filled
+        elif name:
             risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
-    # Add-row button
-    col_add, _ = st.columns([1, 5])
-    with col_add:
-        if st.button("➕ Add row"):
-            st.session_state.new_count += 1
+    # Button to add a new row placeholder
+    if st.button("➕ Add row"):
+        st.session_state.new_rows.append({})
 
     # Summary and advice
+    df_summary, total_score, final_score = calculate_risk_summary(risks)
+    risk_level, guidance = advice_matrix(final_score, tolerance)
+
+    st.markdown(f"**Aggregated Risk Score:** {total_score}")
+    st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
+    st.markdown(f"**Risk Level:** {risk_level}")
+    st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")
     df_summary, total_score, final_score = calculate_risk_summary(risks)
     risk_level, guidance = advice_matrix(final_score, tolerance)
 
