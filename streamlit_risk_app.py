@@ -181,16 +181,18 @@ if st.session_state.get("show_editor") and st.session_state.risks:
         directionality = cols[3].selectbox("Directionality", [0, 1, 2], key=f"dir_new_{j}")
         likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], key=f"like_new_{j}")
         relevance = cols[5].selectbox("Relevance", [0, 1, 2], key=f"rel_new_{j}")
-        delete_new = cols[6].button("🗑️", key=f"del_new_{j}")
-        if not delete_new and name:
+                delete_new = cols[6].button("🗑️", key=f"del_new_{j}")
+        if delete_new:
+            st.session_state.new_count -= 1
+            break
+        if name:
             risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
         # Button to add a new blank row
     col_add, _ = st.columns([1, 5])
     with col_add:
-        if st.button("➕ Add row", key="add_row_new"):
-            st.session_state.new_count = st.session_state.get("new_count", 0) + 1
-            st.experimental_rerun()
+            if st.button("➕ Add row", key="add_row_new"):
+        st.session_state.new_count = st.session_state.get("new_count", 0) + 1
 
     # Summary and advice output
     df_summary, total_score, final_score = calculate_risk_summary(risks)
