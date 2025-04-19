@@ -185,12 +185,12 @@ if st.session_state.get("show_editor") and st.session_state.risks:
         if not delete_new and name:
             risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
-    # Button to add a new blank row
-    col_add, _ = st.columns([1, 5])
+        # Button to add a new blank row
     col_add, _ = st.columns([1, 5])
     with col_add:
-        if st.button("➕ Add row"):
-            st.session_state.new_count += 1
+        if st.button("➕ Add row", key="add_row_new"):
+            st.session_state.new_count = st.session_state.get("new_count", 0) + 1
+            st.experimental_rerun()
 
     # Summary and advice output
     df_summary, total_score, final_score = calculate_risk_summary(risks)
