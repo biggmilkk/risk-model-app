@@ -25,11 +25,12 @@ def gpt_extract_risks(scenario_text):
 
     prompt = prompt_template.format(scenario_text=scenario_text)
 
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0
-    )
+    with st.spinner("Analyzing..."):
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0
+        )
 
     content = response.choices[0].message.content
 
