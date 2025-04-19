@@ -207,28 +207,3 @@ if st.session_state.get("show_editor") and st.session_state.risks:
         "Threat Environment",
         "Operational Disruption",
         "Health & Medical Risk",
-        "Client Profile & Exposure",
-        "Geo-Political & Intelligence Assessment",
-        "Infrastructure & Resource Stability",
-    ]
-    st.subheader("Mapped Risks and Scores")
-    for i, risk in enumerate(risks):
-        cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
-        name = cols[0].text_input("Scenario", value=risk.name, key=f"name_{i}")
-        category = cols[1].selectbox("Risk Category", categories, index=categories.index(risk.category), key=f"cat_{i}")
-        severity = cols[2].selectbox("Severity", [0, 1, 2], index=risk.severity, key=f"sev_{i}")
-        directionality = cols[3].selectbox("Directionality", [0, 1, 2], index=risk.directionality, key=f"dir_{i}")
-        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], index=risk.likelihood, key=f"like_{i}")
-        relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=risk.relevance, key=f"rel_{i}")
-        if cols[6].button("🗑️", key=f"del_{i}"):
-            st.session_state.risks.pop(i)
-            # no explicit rerun; button triggers natural rerun
-            break
-        else:
-            st.session_state.risks[i] = RiskInput(name, severity, relevance, directionality, likelihood, category)
-    if "new_count" not in st.session_state:
-        st.session_state.new_count = 0
-    st.markdown("---")
-    for j in range(st.session_state.new_count):
-        cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
-        name = cols[0].text_input("Scenario", value="", key=f"name_new_{j}")
