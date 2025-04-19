@@ -128,6 +128,7 @@ tolerance = st.selectbox("Select Client Risk Tolerance", ["Low", "Moderate", "Hi
 if st.button("Analyze Scenario"):
     with st.spinner("Analyzing..."):
         st.session_state.risks = gpt_extract_risks(scenario)
+        st.session_state.deleted_indices = set()
         st.session_state.show_editor = True
 
 if st.session_state.get("show_editor") and st.session_state.get("risks"):
@@ -143,7 +144,12 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
     updated_inputs = []
     st.subheader("Mapped Risks and Scores")
     edited_risks = []
+    if "deleted_indices" not in st.session_state:
+        st.session_state.deleted_indices = set()
+
     for i, risk in enumerate(risks):
+        if i in st.session_state.deleted_indices:
+            continue
         cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
         name = cols[0].text_input("Scenario", value=risk.name, key=f"name_{i}")
         category = cols[1].selectbox("Risk Category", categories, index=categories.index(risk.category), key=f"cat_{i}")
@@ -151,8 +157,9 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         directionality = cols[3].selectbox("Directionality", [0, 1, 2], index=risk.directionality, key=f"dir_{i}")
         likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], index=risk.likelihood, key=f"like_{i}")
         relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=risk.relevance, key=f"rel_{i}")
-        delete = cols[6].button("🗑️", key=f"del_existing_{i}")
-        if not delete:
+        if cols[6].button("🗑️", key=f"del_existing_{i}"):
+            st.session_state.deleted_indices.add(i)
+        else:
             edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
     if "new_count" not in st.session_state:
@@ -167,12 +174,11 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         directionality = cols[3].selectbox("Directionality", [0, 1, 2], key=f"dir_new_{j}")
         likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], key=f"like_new_{j}")
         relevance = cols[5].selectbox("Relevance", [0, 1, 2], key=f"rel_new_{j}")
-        delete = cols[6].button("🗑️", key=f"del_new_{j}")
-
-        if name and not delete:
+        if cols[6].button("🗑️", key=f"del_new_{j}"):
+            continue
+        if name:
             edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
-    st.markdown("")
     col_add, _ = st.columns([1, 5])
     with col_add:
         if st.button("➕", key="add_row_btn_bottom_inline"):
