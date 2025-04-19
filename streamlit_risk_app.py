@@ -136,4 +136,94 @@ def advice_matrix(score: int, tolerance: str):
 
     return risk_level, advice
 
-# rest of the script remains unchanged...
+st.set_page_config(layout="wide")
+
+if "existing_risks" not in st.session_state:
+    st.session_state.existing_risks = []
+if "new_risks" not in st.session_state:
+    st.session_state.new_risks = []
+if "deleted_existing" not in st.session_state:
+    st.session_state.deleted_existing = set()
+if "alert_severity_used" not in st.session_state:
+    st.session_state.alert_severity_used = ""
+
+st.title("🧠 AI-Assisted Risk Model & Advice Matrix")
+st.markdown("---")
+
+st.subheader("Step 1: Enter Scenario")
+scenario = st.text_area("Paste threat scenario or alert text here", height=200)
+
+col1, col2 = st.columns([3, 1])
+with col1:
+    tolerance = st.selectbox("Select Client Risk Tolerance", ["Low", "Moderate", "High"], index=1)
+with col2:
+    alert_severity = st.selectbox("Alert Severity Level (if applicable)", ["", "Informational", "Caution", "Warning", "Critical"])
+
+if st.button("Analyze Scenario") and scenario:
+    st.session_state.existing_risks = gpt_extract_risks(scenario)
+    st.session_state.new_risks = []
+    st.session_state.deleted_existing = set()
+    st.session_state.alert_severity_used = alert_severity
+
+if st.session_state.existing_risks or st.session_state.new_risks:
+    st.subheader("Mapped Risks and Scores")
+
+    edited_risks = []
+    st.markdown("#### GPT-Identified Risks")
+    for i, ri in enumerate(st.session_state.existing_risks):
+        if i in st.session_state.deleted_existing:
+            continue
+        cols = st.columns([3, 1, 1, 1, 2, 1])
+        name = cols[0].text_input("Scenario", ri.name, key=f"existing_name_{i}")
+        severity = cols[1].selectbox("Severity", [0, 1, 2], index=ri.severity, key=f"existing_sev_{i}")
+        likelihood = cols[2].selectbox("Likelihood", [0, 1, 2], index=ri.likelihood, key=f"existing_lik_{i}")
+        relevance = cols[3].selectbox("Relevance", [0, 1, 2], index=ri.relevance, key=f"existing_rel_{i}")
+        category = cols[4].selectbox("Category", [
+            "Threat Environment", "Operational Disruption", "Health & Medical Risk",
+            "Client Profile & Exposure", "Geo-Political & Intelligence Assessment",
+            "Infrastructure & Resource Stability"
+        ], index=[
+            "Threat Environment", "Operational Disruption", "Health & Medical Risk",
+            "Client Profile & Exposure", "Geo-Political & Intelligence Assessment",
+            "Infrastructure & Resource Stability"
+        ].index(ri.category), key=f"existing_cat_{i}")
+        if cols[5].button("🗑️", key=f"del_existing_{i}"):
+            st.session_state.deleted_existing.add(i)
+            st.experimental_rerun()
+        else:
+            edited_risks.append(RiskInput(name, severity, relevance, likelihood, category))
+
+    st.markdown("---")
+    st.markdown("#### Add Scenarios Manually")
+    for i, uid in enumerate(st.session_state.new_risks):
+        cols = st.columns([3, 1, 1, 1, 2, 1])
+        name = cols[0].text_input("Scenario", key=f"new_name_{uid}")
+        severity = cols[1].selectbox("Severity", [0, 1, 2], key=f"new_sev_{uid}")
+        likelihood = cols[2].selectbox("Likelihood", [0, 1, 2], key=f"new_lik_{uid}")
+        relevance = cols[3].selectbox("Relevance", [0, 1, 2], key=f"new_rel_{uid}")
+        category = cols[4].selectbox("Category", [
+            "Threat Environment", "Operational Disruption", "Health & Medical Risk",
+            "Client Profile & Exposure", "Geo-Political & Intelligence Assessment",
+            "Infrastructure & Resource Stability"
+        ], key=f"new_cat_{uid}")
+        if cols[5].button("🗑️", key=f"del_new_{uid}"):
+            st.session_state.new_risks.pop(i)
+            st.experimental_rerun()
+        else:
+            if name:
+                edited_risks.append(RiskInput(name, severity, relevance, likelihood, category))
+
+    add_col = st.columns([1, 12])[0]
+    if add_col.button("➕ Add Scenario", key="add_button"):
+        st.session_state.new_risks.append(str(uuid4()))
+
+    df_summary, aggregated_score, final_score, severity_bonus = calculate_risk_summary(edited_risks, st.session_state.alert_severity_used)
+
+    st.subheader("Scores")
+    st.dataframe(df_summary, use_container_width=True, hide_index=True)
+    st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
+    st.markdown(f"**Alert Severity Bonus:** +{severity_bonus}")
+    st.markdown(f"**Final Scenario Score (1-10):** {final_score}")
+
+    risk_level, advice = advice_matrix(final_score, tolerance)
+    st.success(f"**Risk Level:** {risk_level}\n\n**Recommended Action:** {advice}")
