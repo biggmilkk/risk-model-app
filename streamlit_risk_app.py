@@ -102,48 +102,37 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
     final_score = min(normalized_score + cluster_bonus + severity_bonus, 10)
     return df, total_score, final_score, severity_bonus
 
-def advice_matrix(score: int, tolerance: str):
+def advice_matrix(score: int):
     if score <= 3:
-        risk_level = "Low"
+        return {
+            "Low": "Normal Precautions",
+            "Moderate": "Normal Precautions",
+            "High": "Normal Precautions"
+        }
     elif score <= 6:
-        risk_level = "Moderate"
+        return {
+            "Low": "Heightened Vigilance",
+            "Moderate": "Normal Precautions",
+            "High": "Normal Precautions"
+        }
     elif score <= 8:
-        risk_level = "High"
+        return {
+            "Low": "Crisis24 Proactive Engagement",
+            "Moderate": "Heightened Vigilance",
+            "High": "Normal Precautions"
+        }
     else:
-        risk_level = "Extreme"
-
-    if tolerance == "Low":
-        if risk_level in ["High", "Extreme"]:
-            advice = "Crisis24 Proactive Engagement"
-        elif risk_level == "Moderate":
-            advice = "Heightened Vigilance"
-        else:
-            advice = "Normal Precautions"
-    elif tolerance == "Moderate":
-        if risk_level == "Extreme":
-            advice = "Consider Crisis24 Consultation"
-        elif risk_level == "High":
-            advice = "Heightened Vigilance"
-        else:
-            advice = "Normal Precautions"
-    elif tolerance == "High":
-        if risk_level == "Extreme":
-            advice = "Heightened Vigilance"
-        else:
-            advice = "Normal Precautions"
-    else:
-        advice = "No Guidance Available"
-
-    return risk_level, advice
+        return {
+            "Low": "Crisis24 Proactive Engagement",
+            "Moderate": "Consider Crisis24 Consultation",
+            "High": "Heightened Vigilance"
+        }
 
 st.set_page_config(layout="wide")
 st.title("AI-Assisted Risk Model & Advice Matrix")
 
 if "scenario_text" not in st.session_state:
     st.session_state["scenario_text"] = ""
-
-if "tolerance" not in st.session_state:
-    st.session_state["tolerance"] = "Moderate"
 
 if "use_alert_severity" not in st.session_state:
     st.session_state["use_alert_severity"] = False
@@ -154,18 +143,16 @@ if "alert_severity_level" not in st.session_state:
 if "alert_severity_used" not in st.session_state:
     st.session_state["alert_severity_used"] = None
 
-st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", value=st.session_state["scenario_text"], height=300)
-st.session_state["tolerance"] = st.selectbox("Select Client Risk Tolerance", ["Low", "Moderate", "High"], index=["Low", "Moderate", "High"].index(st.session_state["tolerance"]))
+st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", value=st.session_state["scenario_text"])
 st.session_state["use_alert_severity"] = st.checkbox("Include source alert severity rating", value=st.session_state["use_alert_severity"])
 if st.session_state["use_alert_severity"]:
     st.session_state["alert_severity_level"] = st.selectbox("Select Alert Severity (if applicable)", ["Informational", "Caution", "Warning", "Critical"], index=["Informational", "Caution", "Warning", "Critical"].index(st.session_state["alert_severity_level"]))
 
 if st.button("Analyze Scenario"):
     scenario = st.session_state["scenario_text"]
-    tolerance = st.session_state["tolerance"]
     alert_severity = st.session_state["alert_severity_level"] if st.session_state["use_alert_severity"] else None
 
-    keys_to_keep = {"scenario_text", "tolerance", "use_alert_severity", "alert_severity_level"}
+    keys_to_keep = {"scenario_text", "use_alert_severity", "alert_severity_level"}
     for key in list(st.session_state.keys()):
         if key not in keys_to_keep:
             del st.session_state[key]
@@ -237,14 +224,15 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
 
     updated_inputs = edited_risks + st.session_state.new_entries
     df_summary, aggregated_score, final_score, severity_bonus = calculate_risk_summary(updated_inputs, st.session_state.alert_severity_used)
-    risk_level, guidance = advice_matrix(final_score, st.session_state.tolerance)
+    tolerance_advice = advice_matrix(final_score)
 
     df_summary.index = df_summary.index + 1
 
     st.markdown("**Scores:**")
     st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
     st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
-    st.markdown(f"**Risk Level:** {risk_level}")
-    st.markdown(f"**Advice for {st.session_state.tolerance} Tolerance:** {guidance}")
+    st.markdown("**Advice for All Risk Tolerances:**")
+    for level in ["Low", "Moderate", "High"]:
+        st.markdown(f"- **{level} Tolerance:** {tolerance_advice[level]}")
     if severity_bonus:
         st.markdown(f"**Alert Severity Bonus Applied:** {st.session_state.alert_severity_used} (+{severity_bonus})")
