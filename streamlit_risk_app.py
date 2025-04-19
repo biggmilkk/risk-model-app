@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import pandas as pd
 import openai
 from collections import Counter
+import json
 
 client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -10,9 +11,9 @@ client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 class RiskInput:
     name: str
     severity: int
-    relevance: int
     directionality: int
     likelihood: int
+    relevance: int
     category: str
 
     def weighted_score(self) -> int:
@@ -51,14 +52,14 @@ Scoring Instructions:
 Return only a valid JSON array using this exact format:
 
 [
-  {{
+  {
     "name": "Short description of the risk",
     "category": "One of: Threat Environment, Operational Disruption, Health & Medical Risk, Client Profile & Exposure, Geo-Political & Intelligence Assessment, Infrastructure & Resource Stability",
     "severity": 0-2,
     "directionality": 0-2,
     "likelihood": 0-2,
     "relevance": 0-2
-  }}
+  }
 ]
 
 Do not include explanations, markdown, or any text before or after the JSON.
@@ -76,7 +77,6 @@ Scenario:
         temperature=0
     )
 
-    import json
     content = response.choices[0].message.content
 
     try:
@@ -98,3 +98,52 @@ Scenario:
         st.warning("Parsed successfully, but no valid risks were returned.")
 
     return risks
+
+st.title("AI-Assisted Risk Model & Advice Matrix")
+
+scenario = st.text_area("Paste or type your scenario here")
+
+if "risks" not in st.session_state:
+    st.session_state.risks = []
+
+if st.button("Analyze Scenario"):
+    with st.spinner("Analyzing..."):
+        st.session_state.risks = gpt_extract_risks(scenario)
+
+if st.session_state.risks:
+    st.subheader("Mapped Risks and Scores")
+    risk_data = []
+    for i, risk in enumerate(st.session_state.risks):
+        col1, col2, col3, col4, col5, col6 = st.columns(6)
+        with col1:
+            name = st.text_input("Risk", value=risk.name, key=f"name_{i}")
+        with col2:
+            severity = st.selectbox("Severity", [0, 1, 2], index=risk.severity, key=f"severity_{i}")
+        with col3:
+            directionality = st.selectbox("Directionality", [0, 1, 2], index=risk.directionality, key=f"directionality_{i}")
+        with col4:
+            likelihood = st.selectbox("Likelihood", [0, 1, 2], index=risk.likelihood, key=f"likelihood_{i}")
+        with col5:
+            relevance = st.selectbox("Relevance", [0, 1, 2], index=risk.relevance, key=f"relevance_{i}")
+        with col6:
+            category = st.selectbox("Category", [
+                "Threat Environment",
+                "Operational Disruption",
+                "Health & Medical Risk",
+                "Client Profile & Exposure",
+                "Geo-Political & Intelligence Assessment",
+                "Infrastructure & Resource Stability"
+            ], index=[
+                "Threat Environment",
+                "Operational Disruption",
+                "Health & Medical Risk",
+                "Client Profile & Exposure",
+                "Geo-Political & Intelligence Assessment",
+                "Infrastructure & Resource Stability"
+            ].index(risk.category), key=f"category_{i}")
+
+        risk_data.append(RiskInput(name, severity, directionality, likelihood, relevance, category))
+
+    total_score = sum(r.weighted_score() for r in risk_data)
+    normalized_score = min(10, round(total_score / max(len(risk_data), 1)))
+    st.markdown(f"**Aggregated Score:** {total_score} → **Final Risk Rating (1-10):** {normalized_score}")
