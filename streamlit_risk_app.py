@@ -222,7 +222,8 @@ if st.session_state.get("show_editor") and st.session_state.risks:
         relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=risk.relevance, key=f"rel_{i}")
         if cols[6].button("🗑️", key=f"del_{i}"):
             st.session_state.risks.pop(i)
-            st.experimental_rerun()
+            # no explicit rerun; button triggers natural rerun
+            break
         else:
             st.session_state.risks[i] = RiskInput(name, severity, relevance, directionality, likelihood, category)
     if "new_count" not in st.session_state:
@@ -231,25 +232,3 @@ if st.session_state.get("show_editor") and st.session_state.risks:
     for j in range(st.session_state.new_count):
         cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
         name = cols[0].text_input("Scenario", value="", key=f"name_new_{j}")
-        category = cols[1].selectbox("Risk Category", categories, key=f"cat_new_{j}")
-        severity = cols[2].selectbox("Severity", [0, 1, 2], key=f"sev_new_{j}")
-        directionality = cols[3].selectbox("Directionality", [0, 1, 2], key=f"dir_new_{j}")
-        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], key=f"like_new_{j}")
-        relevance = cols[5].selectbox("Relevance", [0, 1, 2], key=f"rel_new_{j}")
-        if cols[6].button("🗑️", key=f"del_new_{j}"):
-            continue
-        if name:
-            st.session_state.risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
-    col_add, _ = st.columns([1, 5])
-    with col_add:
-        if st.button("➕", key="add_row_btn_bottom_inline"):
-            st.session_state.new_count += 1
-            st.experimental_rerun()
-    df_summary, aggregated_score, final_score = calculate_risk_summary(st.session_state.risks)
-    risk_level, guidance = advice_matrix(final_score, tolerance)
-    df_summary.index = df_summary.index + 1
-    st.markdown("**Scores:**")
-    st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
-    st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
-    st.markdown(f"**Risk Level:** {risk_level}")
-    st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")
