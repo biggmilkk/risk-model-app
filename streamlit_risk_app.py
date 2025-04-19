@@ -2,6 +2,7 @@ import streamlit as st
 from dataclasses import dataclass
 import pandas as pd
 import openai
+import json
 from collections import Counter
 
 client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -110,7 +111,6 @@ Scenario:
         temperature=0
     )
 
-    import json
     content = response.choices[0].message.content
 
     try:
@@ -132,3 +132,31 @@ Scenario:
         st.warning("Parsed successfully, but no valid risks were returned.")
 
     return risks
+
+# UI Setup
+st.set_page_config(page_title="AI-Assisted Risk Model & Advice Matrix", layout="wide")
+st.title("AI-Assisted Risk Model & Advice Matrix")
+
+scenario = st.text_area("Enter scenario description:", height=200)
+if st.button("Analyze Scenario") and scenario:
+    with st.spinner("Analyzing..."):
+        st.session_state.risks = gpt_extract_risks(scenario)
+        st.session_state.show_results = True
+
+if st.session_state.get("show_results") and st.session_state.get("risks"):
+    st.subheader("Mapped Risks and Scores")
+    df = pd.DataFrame([{
+        "Scenario": risk.name,
+        "Category": risk.category,
+        "Severity": risk.severity,
+        "Directionality": risk.directionality,
+        "Likelihood": risk.likelihood,
+        "Relevance": risk.relevance,
+        "Score": risk.weighted_score()
+    } for risk in st.session_state.risks])
+
+    df.index = df.index + 1  # Start index from 1
+    st.dataframe(df, use_container_width=True)
+
+    total_score = df['Score'].sum()
+    st.markdown(f"**Total Score:** {total_score}")
