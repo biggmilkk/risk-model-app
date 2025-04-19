@@ -23,15 +23,32 @@ def gpt_extract_risks(scenario_text):
     You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the following higher-level risk categories, and estimate its severity (0-2), relevance (0-2), directionality (0-2), and likelihood (0-2). Use whole numbers only.
 
     Risk Categories:
-    1. Threat Environment
-    2. Operational Disruption
-    3. Health & Medical Risk
-    4. Client Profile & Exposure
-    5. Geo-Political & Intelligence Assessment
-    6. Infrastructure & Resource Stability
+    1. Threat Environment (e.g., Critical Incident, Sustained Civil Unrest, Anti-American Sentiment, Status of Government, History of Resolution, Actions Taken by Local Government, Key Populations Being Targeted, Police/Military Presence, Observance of Lawlessness, Likelihood of Regional Conflict Spillover, Other Assistance Companies Issuing Warnings, Other Higher Ed Clients Discussing Evacuation, Closure of Educational Institutions)
 
-    Scenario:
-        {scenario_text}
+    2. Operational Disruption (e.g., Impact Considerations, Location Considerations, Immediacy Considerations, Event Lead Time, Road Closures, Curfews, Disruptions to Mobile Voice/SMS/Data Services, Observance of Power Outages, Access to Fuel, Access to Food and Clean Water, Transportation Infrastructure, Airlines Limiting or Canceling Flights)
+
+    3. Health & Medical Risk (e.g., Severity of Health Situation [Self or Official Report], Crisis24 Medical Assessment, Deviation from Baseline Medical History, Availability of Medical/Mental Health Treatment, Critical Medication Supply, Need for a Medical Escort, Strain on Local Medical Resources, Increased Transmission of Communicable Diseases, Access to MedEvac, Health Infrastructure Strain)
+
+    4. Client Profile & Exposure (e.g., Undergraduate/Graduate/Staff, Supervision/Organizational Support, Program Type, Group Size, Field Site or Urban Environment, How Far Must Commute to Necessities, Housing/Shelter Security, When Travelers Intend to Leave, Airport Type, Access to Intelligence or Info Sharing, Safe Havens or Alternatives)
+
+    5. Geo-Political & Intelligence Assessment (e.g., Severity of Crisis24 Alerts, Preexisting Crisis24 Location Intelligence Rating, Dynamic Risk Library Assessment, US State Department Travel Advisory, FCDO Travel Warning, Australia Smarttraveller Warning, Relative Concern of Crisis24 Personnel, Crisis24 Life Safety Assessment, CAT [Crisis Advisory Team] Activation, Organizational Risk Appetite, Existing Mitigations/Security Protocols)
+
+    6. Infrastructure & Resource Stability (e.g., Environmental and Weather Risk, Changes in Local Climate, Disruptions to Communication, Internet Infrastructure, Power Grid Stability, Medical System Burden, Communications Breakdown, Relative Capabilities of Assistance Company)
+
+    Return only a valid JSON array like this:
+    [
+      {{
+        "name": "Short description of the risk",
+        "category": "One of: Threat Environment, Operational Disruption, Health & Medical Risk, Client Profile & Exposure, Geo-Political & Intelligence Assessment, Infrastructure & Resource Stability",
+        "severity": 0,
+        "directionality": 0,
+        "likelihood": 0,
+        "relevance": 0
+      }}
+    ]
+
+    Do not include markdown or explanation. Scenario:
+    {scenario_text}
     """
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -81,6 +98,7 @@ def calculate_risk_summary(inputs):
     max_possible_score = len(inputs) * 10
     normalized_score = int(round((total_score / max_possible_score) * 10)) if max_possible_score > 0 else 0
 
+    # Risk Clustering Bonus
     categories = [r.category for r in inputs]
     total_categories = len(categories)
     unique_categories = len(set(categories))
@@ -161,38 +179,38 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=risk.relevance if risk.relevance in [0, 1, 2] else 1, key=f"rel_{i}")
         edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
-    if "new_risks" not in st.session_state:
-        st.session_state.new_risks = []
+    if "new_count" not in st.session_state:
+        st.session_state.new_count = 0
 
-    st.markdown("---")
-    st.markdown("### Additional User-Defined Scenarios")
+    for j in range(st.session_state.new_count):
+        cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
+        name = cols[0].text_input("Scenario", value="", key=f"name_new_{j}")
+        category = cols[1].selectbox("Risk Category", categories, key=f"cat_new_{j}")
+        severity = cols[2].selectbox("Severity", [0, 1, 2], key=f"sev_new_{j}")
+        directionality = cols[3].selectbox("Directionality", [0, 1, 2], key=f"dir_new_{j}")
+        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], key=f"like_new_{j}")
+        relevance = cols[5].selectbox("Relevance", [0, 1, 2], key=f"rel_new_{j}")
+        delete = cols[6].button("🗑️", key=f"del_new_{j}")
 
-    to_remove = []
-    for j, item in enumerate(st.session_state.new_risks):
-        cols = st.columns(7)
-        name = cols[0].text_input("Scenario", value=item.name, key=f"name_new_{j}")
-        category = cols[1].selectbox("Risk Category", categories, index=categories.index(item.category), key=f"cat_new_{j}")
-        severity = cols[2].selectbox("Severity", [0, 1, 2], index=item.severity, key=f"sev_new_{j}")
-        directionality = cols[3].selectbox("Directionality", [0, 1, 2], index=item.directionality, key=f"dir_new_{j}")
-        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], index=item.likelihood, key=f"like_new_{j}")
-        relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=item.relevance, key=f"rel_new_{j}")
-        if cols[6].button("🗑️", key=f"del_{j}"):
-            to_remove.append(j)
-        else:
-            st.session_state.new_risks[j] = RiskInput(name, severity, relevance, directionality, likelihood, category)
+        if delete:
+            st.session_state.new_count -= 1
+            st.rerun()
 
-    for idx in sorted(to_remove, reverse=True):
-        st.session_state.new_risks.pop(idx)
+        if name:
+            edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
 
-    if st.button("➕ Add Scenario Row"):
-        st.session_state.new_risks.append(RiskInput("", 1, 1, 1, 1, categories[0]))
+    col_add, _ = st.columns([1, 5])
+    with col_add:
+        if st.button("➕", key="add_row_btn_bottom_inline"):
+            st.session_state.new_count += 1
+            st.rerun()
 
-    updated_inputs = edited_risks + st.session_state.new_risks
+    updated_inputs = edited_risks
 
     df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
     risk_level, guidance = advice_matrix(final_score, tolerance)
 
-    df_summary.index = df_summary.index + 1
+    df_summary.index = df_summary.index + 1  # Start numbering from 1
 
     st.markdown("**Scores:**")
     st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
