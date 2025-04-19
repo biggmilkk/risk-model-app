@@ -54,6 +54,8 @@ Assign Likelihood = 1 if the scenario uses conditional or cautious phrasing such
 
 “Port closures could occur if tensions escalate” → Likelihood = 1
 
+"Violence could disrupt flight operations" → Likelihood = 1
+
 Do not score these as Likelihood = 2 unless there is official confirmation or concrete action already underway.
 
 Special Guidance for Bombings and Explosions:
@@ -152,3 +154,4 @@ Do not include explanations, markdown, or any text before or after the JSON.
 Scenario:
 {scenario_text}
 """
+
