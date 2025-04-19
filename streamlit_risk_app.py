@@ -44,29 +44,29 @@ Risk Categories with Examples:
    - Examples: Environmental and Weather Risk, Changes in Local Climate, Disruptions to Communication, Internet Infrastructure, Power Grid Stability, Medical System Burden, Communications Breakdown, Relative Capabilities of Assistance Company
 
 Scoring Instructions:
-- **Severity**: 0 (low), 1 (moderate), 2 (high)
-- **Directionality**: 0 (improving), 1 (stable), 2 (worsening)
-- **Likelihood**: 0 (unlikely), 1 (possible), 2 (likely or ongoing)
-- **Relevance**: 0 (not relevant), 1 (somewhat relevant), 2 (very relevant)
+- Severity: 0 (low), 1 (moderate), 2 (high)
+- Directionality: 0 (improving), 1 (stable), 2 (worsening)
+- Likelihood: 0 (unlikely), 1 (possible), 2 (likely or ongoing)
+- Relevance: 0 (not relevant), 1 (somewhat relevant), 2 (very relevant)
 
 Return only a valid JSON array using this exact format:
 
 [
-  {
+  {{
     "name": "Short description of the risk",
     "category": "One of: Threat Environment, Operational Disruption, Health & Medical Risk, Client Profile & Exposure, Geo-Political & Intelligence Assessment, Infrastructure & Resource Stability",
-    "severity": 0-2,
-    "directionality": 0-2,
-    "likelihood": 0-2,
-    "relevance": 0-2
-  }
+    "severity": 0,
+    "directionality": 0,
+    "likelihood": 0,
+    "relevance": 0
+  }}
 ]
 
 Do not include explanations, markdown, or any text before or after the JSON.
 
 Scenario:
 {scenario_text}
-    """
+"""
 
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
