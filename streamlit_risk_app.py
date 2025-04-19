@@ -246,8 +246,17 @@ if st.session_state.get("show_editor") and st.session_state.get("risks"):
         
 
     for j in range(add_count):
-        cols = st.columns([1, 1, 1, 1, 1, 1])
-            if st.button("🗑️", key=f"del_new_{j}"):
+        cols = st.columns([1, 1, 1, 1, 1, 1, 0.5])
+        name = cols[0].text_input("Scenario", value="", key=f"name_new_{j}")
+        category = cols[1].selectbox("Risk Category", categories, key=f"cat_new_{j}")
+        severity = cols[2].selectbox("Severity", [0, 1, 2], key=f"sev_new_{j}")
+        directionality = cols[3].selectbox("Directionality", [0, 1, 2], key=f"dir_new_{j}")
+        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], key=f"like_new_{j}")
+        relevance = cols[5].selectbox("Relevance", [0, 1, 2], key=f"rel_new_{j}")
+        if cols[6].button("🗑️", key=f"del_new_{j}"):
+            st.session_state.new_count -= 1
+            st.rerun()
+
         st.session_state.new_count -= 1
         st.rerun()
         name = cols[0].text_input("Scenario", value="", key=f"name_new_{j}")
