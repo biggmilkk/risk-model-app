@@ -122,15 +122,29 @@ def advice_matrix(score: int, tolerance: str):
 st.set_page_config(layout="wide")
 st.title("AI-Assisted Risk Model & Advice Matrix")
 
-scenario = st.text_area("Enter Threat Scenario")
-tolerance = st.selectbox("Select Client Risk Tolerance", ["Low", "Moderate", "High"], index=1)
+if "scenario_text" not in st.session_state:
+    st.session_state["scenario_text"] = ""
+
+if "tolerance" not in st.session_state:
+    st.session_state["tolerance"] = "Moderate"
+
+st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", value=st.session_state["scenario_text"])
+st.session_state["tolerance"] = st.selectbox("Select Client Risk Tolerance", ["Low", "Moderate", "High"], index=["Low", "Moderate", "High"].index(st.session_state["tolerance"]))
 
 if st.button("Analyze Scenario"):
-    with st.spinner("Analyzing..."):
-        st.session_state.risks = gpt_extract_risks(scenario)
-        st.session_state.deleted_existing = set()
-        st.session_state.new_entries = []
-        st.session_state.show_editor = True
+    scenario = st.session_state["scenario_text"]
+    tolerance = st.session_state["tolerance"]
+
+    keys_to_keep = {"scenario_text", "tolerance"}
+    for key in list(st.session_state.keys()):
+        if key not in keys_to_keep:
+            del st.session_state[key]
+
+    st.session_state.risks = gpt_extract_risks(scenario)
+    st.session_state.deleted_existing = set()
+    st.session_state.new_entries = []
+    st.session_state.show_editor = True
+    st.rerun()
 
 if st.session_state.get("show_editor") and st.session_state.get("risks") is not None:
     risks = st.session_state.risks
@@ -188,7 +202,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
     updated_inputs = edited_risks + st.session_state.new_entries
 
     df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
-    risk_level, guidance = advice_matrix(final_score, tolerance)
+    risk_level, guidance = advice_matrix(final_score, st.session_state.tolerance)
 
     df_summary.index = df_summary.index + 1
 
@@ -196,4 +210,4 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
     st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
     st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
     st.markdown(f"**Risk Level:** {risk_level}")
-    st.markdown(f"**Advice for {tolerance} Tolerance:** {guidance}")
+    st.markdown(f"**Advice for {st.session_state.tolerance} Tolerance:** {guidance}")
