@@ -13,12 +13,11 @@ class RiskInput:
     name: str
     severity: int
     relevance: int
-    directionality: int
     likelihood: int
     category: str
 
     def weighted_score(self) -> int:
-        return (self.severity * 1) + (self.relevance * 2) + (self.directionality * 1) + (self.likelihood * 1)
+        return (self.severity * 1) + (self.relevance * 2) + (self.likelihood * 1)
 
 def gpt_extract_risks(scenario_text):
     with open("gpt_prompt.txt", "r", encoding="utf-8") as f:
@@ -54,7 +53,7 @@ def gpt_extract_risks(scenario_text):
 
     return risks
 
-def calculate_risk_summary(inputs):
+def calculate_risk_summary(inputs, alert_severity_level=None):
     rows = []
     total_score = 0
     for risk in inputs:
@@ -64,7 +63,6 @@ def calculate_risk_summary(inputs):
             "Scenario": risk.name,
             "Risk Category": risk.category,
             "Severity": risk.severity,
-            "Directionality": risk.directionality,
             "Likelihood": risk.likelihood,
             "Relevance": risk.relevance,
             "Weighted Score": score
@@ -83,8 +81,16 @@ def calculate_risk_summary(inputs):
     else:
         cluster_bonus = 0
 
-    final_score = min(normalized_score + cluster_bonus, 10)
-    return df, total_score, final_score
+    severity_bonus_map = {
+        "Informational": 0,
+        "Caution": 0,
+        "Warning": 1,
+        "Critical": 2
+    }
+    severity_bonus = severity_bonus_map.get(alert_severity_level, 0) if alert_severity_level else 0
+
+    final_score = min(normalized_score + cluster_bonus + severity_bonus, 10)
+    return df, total_score, final_score, severity_bonus
 
 def advice_matrix(score: int, tolerance: str):
     if score <= 3:
@@ -129,23 +135,34 @@ if "scenario_text" not in st.session_state:
 if "tolerance" not in st.session_state:
     st.session_state["tolerance"] = "Moderate"
 
+if "use_alert_severity" not in st.session_state:
+    st.session_state["use_alert_severity"] = False
+
+if "alert_severity_level" not in st.session_state:
+    st.session_state["alert_severity_level"] = "Informational"
+
 st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", value=st.session_state["scenario_text"])
 st.session_state["tolerance"] = st.selectbox("Select Client Risk Tolerance", ["Low", "Moderate", "High"], index=["Low", "Moderate", "High"].index(st.session_state["tolerance"]))
+st.session_state["use_alert_severity"] = st.checkbox("Include source alert severity rating", value=st.session_state["use_alert_severity"])
+if st.session_state["use_alert_severity"]:
+    st.session_state["alert_severity_level"] = st.selectbox("Select Alert Severity (if applicable)", ["Informational", "Caution", "Warning", "Critical"], index=["Informational", "Caution", "Warning", "Critical"].index(st.session_state["alert_severity_level"]))
 
 if st.button("Analyze Scenario"):
     scenario = st.session_state["scenario_text"]
     tolerance = st.session_state["tolerance"]
+    alert_severity = st.session_state["alert_severity_level"] if st.session_state["use_alert_severity"] else None
 
-    keys_to_keep = {"scenario_text", "tolerance"}
+    keys_to_keep = {"scenario_text", "tolerance", "use_alert_severity", "alert_severity_level"}
     for key in list(st.session_state.keys()):
         if key not in keys_to_keep:
             del st.session_state[key]
 
-    st.session_state.session_id = str(uuid4())  # new session key for widget uniqueness
+    st.session_state.session_id = str(uuid4())
     st.session_state.risks = gpt_extract_risks(scenario)
     st.session_state.deleted_existing = set()
     st.session_state.new_entries = []
     st.session_state.show_editor = True
+    st.session_state.alert_severity_used = alert_severity
     st.rerun()
 
 if st.session_state.get("show_editor") and st.session_state.get("risks") is not None:
@@ -167,45 +184,42 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
     for i, risk in enumerate(risks):
         if i in st.session_state.deleted_existing:
             continue
-        cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
+        cols = st.columns([2, 2, 1, 1, 1, 0.5])
         name = cols[0].text_input("Scenario", value=risk.name, key=f"{key_prefix}_name_{i}")
         category = cols[1].selectbox("Risk Category", categories, index=categories.index(risk.category), key=f"{key_prefix}_cat_{i}")
         severity = cols[2].selectbox("Severity", [0, 1, 2], index=risk.severity, key=f"{key_prefix}_sev_{i}")
-        directionality = cols[3].selectbox("Directionality", [0, 1, 2], index=risk.directionality, key=f"{key_prefix}_dir_{i}")
-        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], index=risk.likelihood, key=f"{key_prefix}_like_{i}")
-        relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=risk.relevance, key=f"{key_prefix}_rel_{i}")
-        if cols[6].button("🗑️", key=f"{key_prefix}_del_existing_{i}"):
+        likelihood = cols[3].selectbox("Likelihood", [0, 1, 2], index=risk.likelihood, key=f"{key_prefix}_like_{i}")
+        relevance = cols[4].selectbox("Relevance", [0, 1, 2], index=risk.relevance, key=f"{key_prefix}_rel_{i}")
+        if cols[5].button("🗑️", key=f"{key_prefix}_del_existing_{i}"):
             st.session_state.deleted_existing.add(i)
             st.rerun()
         else:
-            edited_risks.append(RiskInput(name, severity, relevance, directionality, likelihood, category))
+            edited_risks.append(RiskInput(name, severity, relevance, likelihood, category))
 
     st.markdown("---")
     for j, row in enumerate(st.session_state.get("new_entries", [])):
-        cols = st.columns([2, 2, 1, 1, 1, 1, 0.5])
+        cols = st.columns([2, 2, 1, 1, 1, 0.5])
         name = cols[0].text_input("Scenario", value=row.name, key=f"name_new_{j}")
         category = cols[1].selectbox("Risk Category", categories, index=categories.index(row.category), key=f"cat_new_{j}")
         severity = cols[2].selectbox("Severity", [0, 1, 2], index=row.severity, key=f"sev_new_{j}")
-        directionality = cols[3].selectbox("Directionality", [0, 1, 2], index=row.directionality, key=f"dir_new_{j}")
-        likelihood = cols[4].selectbox("Likelihood", [0, 1, 2], index=row.likelihood, key=f"like_new_{j}")
-        relevance = cols[5].selectbox("Relevance", [0, 1, 2], index=row.relevance, key=f"rel_new_{j}")
-        if cols[6].button("🗑️", key=f"del_new_{j}"):
+        likelihood = cols[3].selectbox("Likelihood", [0, 1, 2], index=row.likelihood, key=f"like_new_{j}")
+        relevance = cols[4].selectbox("Relevance", [0, 1, 2], index=row.relevance, key=f"rel_new_{j}")
+        if cols[5].button("🗑️", key=f"del_new_{j}"):
             st.session_state.new_entries.pop(j)
             st.rerun()
         else:
-            st.session_state.new_entries[j] = RiskInput(name, severity, relevance, directionality, likelihood, category)
+            st.session_state.new_entries[j] = RiskInput(name, severity, relevance, likelihood, category)
 
     col_add, _ = st.columns([1, 5])
     with col_add:
         if st.button("➕", key="add_row_btn_bottom_inline"):
             st.session_state.new_entries.append(
-                RiskInput("", 0, 0, 0, 0, categories[0])
+                RiskInput("", 0, 0, 0, categories[0])
             )
             st.rerun()
 
     updated_inputs = edited_risks + st.session_state.new_entries
-
-    df_summary, aggregated_score, final_score = calculate_risk_summary(updated_inputs)
+    df_summary, aggregated_score, final_score, severity_bonus = calculate_risk_summary(updated_inputs, st.session_state.alert_severity_used)
     risk_level, guidance = advice_matrix(final_score, st.session_state.tolerance)
 
     df_summary.index = df_summary.index + 1
@@ -215,3 +229,5 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
     st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
     st.markdown(f"**Risk Level:** {risk_level}")
     st.markdown(f"**Advice for {st.session_state.tolerance} Tolerance:** {guidance}")
+    if severity_bonus:
+        st.markdown(f"**Alert Severity Bonus Applied:** {st.session_state.alert_severity_used} (+{severity_bonus})")
