@@ -2,7 +2,7 @@ import streamlit as st
 from dataclasses import dataclass
 import pandas as pd
 import openai
-from collections import Counter
+from collections import Counter, defaultdict
 import json
 from uuid import uuid4
 
@@ -74,20 +74,31 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
     max_possible_score = len(inputs) * 8
     normalized_score = int(round((total_score / max_possible_score) * 10)) if max_possible_score > 0 else 0
 
-    high_risks = [r for r in inputs if r.weighted_score() >= 6]
-    low_risks = [r for r in inputs if 3 <= r.weighted_score() < 6]
+    # Cluster logic
+    category_clusters = defaultdict(int)
+    med_scores = defaultdict(int)
+    low_scores = defaultdict(int)
 
-    high_categories = [r.category for r in high_risks]
-    low_category_counts = Counter([r.category for r in low_risks])
-    low_clustered_categories = [cat for cat, count in low_category_counts.items() if count >= 3]
+    for r in inputs:
+        score = r.weighted_score()
+        cat = r.category
+        if score >= 7:
+            category_clusters[cat] += 1
+        elif 5 <= score <= 6:
+            med_scores[cat] += 1
+        elif score < 4:
+            low_scores[cat] += 1
 
-    cluster_categories = high_categories + low_clustered_categories
-    total_cluster_risks = len(cluster_categories)
-    unique_cluster_categories = len(set(cluster_categories))
+    for cat, count in med_scores.items():
+        category_clusters[cat] += count // 3
+    for cat, count in low_scores.items():
+        category_clusters[cat] += count // 5
 
-    if total_cluster_risks > 0:
-        clustering_ratio = (total_cluster_risks - unique_cluster_categories) / total_cluster_risks
-        cluster_bonus = min(round(clustering_ratio * 2), 2)
+    qualifying_categories = [cat for cat, count in category_clusters.items() if count >= 3]
+    if len(qualifying_categories) >= 3:
+        cluster_bonus = 2
+    elif any(count >= 3 for count in category_clusters.values()):
+        cluster_bonus = 1
     else:
         cluster_bonus = 0
 
@@ -102,31 +113,39 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
     final_score = min(normalized_score + cluster_bonus + severity_bonus, 10)
     return df, total_score, final_score, severity_bonus
 
-def advice_matrix(score: int):
+def advice_matrix(score: int, tolerance: str):
     if score <= 3:
-        return {
-            "Low": "Normal Precautions",
-            "Moderate": "Normal Precautions",
-            "High": "Normal Precautions"
-        }
+        risk_level = "Low"
     elif score <= 6:
-        return {
-            "Low": "Heightened Vigilance",
-            "Moderate": "Normal Precautions",
-            "High": "Normal Precautions"
-        }
+        risk_level = "Moderate"
     elif score <= 8:
-        return {
-            "Low": "Crisis24 Proactive Engagement",
-            "Moderate": "Heightened Vigilance",
-            "High": "Normal Precautions"
-        }
+        risk_level = "High"
     else:
-        return {
-            "Low": "Crisis24 Proactive Engagement",
-            "Moderate": "Consider Crisis24 Consultation",
-            "High": "Heightened Vigilance"
-        }
+        risk_level = "Extreme"
+
+    if tolerance == "Low":
+        if risk_level in ["High", "Extreme"]:
+            advice = "Crisis24 Proactive Engagement"
+        elif risk_level == "Moderate":
+            advice = "Heightened Vigilance"
+        else:
+            advice = "Normal Precautions"
+    elif tolerance == "Moderate":
+        if risk_level == "Extreme":
+            advice = "Consider Crisis24 Consultation"
+        elif risk_level == "High":
+            advice = "Heightened Vigilance"
+        else:
+            advice = "Normal Precautions"
+    elif tolerance == "High":
+        if risk_level == "Extreme":
+            advice = "Heightened Vigilance"
+        else:
+            advice = "Normal Precautions"
+    else:
+        advice = "No Guidance Available"
+
+    return risk_level, advice
 
 st.set_page_config(layout="wide")
 st.title("AI-Assisted Risk Model & Advice Matrix")
@@ -217,22 +236,21 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
     col_add, _ = st.columns([1, 5])
     with col_add:
         if st.button("➕ Add Scenario", key="add_row_btn_bottom_inline"):
-            st.session_state.new_entries.append(
-                RiskInput("", 0, 0, 0, categories[0])
-            )
+            st.session_state.new_entries.append(RiskInput("", 0, 0, 0, categories[0]))
             st.rerun()
 
     updated_inputs = edited_risks + st.session_state.new_entries
     df_summary, aggregated_score, final_score, severity_bonus = calculate_risk_summary(updated_inputs, st.session_state.alert_severity_used)
-    tolerance_advice = advice_matrix(final_score)
 
     df_summary.index = df_summary.index + 1
 
     st.markdown("**Scores:**")
     st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
     st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
-    st.markdown("**Advice for All Risk Tolerances:**")
-    for level in ["Low", "Moderate", "High"]:
-        st.markdown(f"- **{level} Tolerance:** {tolerance_advice[level]}")
+
+    for tolerance in ["Low", "Moderate", "High"]:
+        risk_level, guidance = advice_matrix(final_score, tolerance)
+        st.markdown(f"**{tolerance} Tolerance → {risk_level} Risk → Advice:** {guidance}")
+
     if severity_bonus:
         st.markdown(f"**Alert Severity Bonus Applied:** {st.session_state.alert_severity_used} (+{severity_bonus})")
