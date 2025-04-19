@@ -1,5 +1,5 @@
 prompt = f"""
-    You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the following higher-level risk categories, and estimate its severity (0-2), relevance (0-2), directionality (0-2), and likelihood (0-2). Use whole numbers only.
+    You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the following higher-level risk categories, and estimate its severity (0-2), relevance (0-2), and likelihood (0-2). Use whole numbers only.
 
     Risk Categories:
     1. Threat Environment (e.g., Critical Incident, Sustained Civil Unrest, Anti-American Sentiment, Status of Government, History of Resolution, Actions Taken by Local Government, Key Populations Being Targeted, Police/Military Presence, Observance of Lawlessness, Likelihood of Regional Conflict Spillover, Other Assistance Companies Issuing Warnings, Other Higher Ed Clients Discussing Evacuation, Closure of Educational Institutions)
@@ -61,7 +61,6 @@ Differentiate between intentional and unintentional explosions using context. As
 
   → Assign Category: Threat Environment  
   → Severity: 1–2 depending on casualties or damage  
-  → Directionality: 0 if attack has been resolved or threat is reduced  
   → Likelihood: Based on whether it is confirmed, ongoing, or speculative
 
 — Accidental or Environmental Explosions
@@ -73,29 +72,27 @@ Differentiate between intentional and unintentional explosions using context. As
   - Equipment malfunction (e.g., AC or boiler explosions)
 
   → Assign Category: Infrastructure & Resource Stability  
-  → Severity: 0–2 depending on impact  
-  → Directionality: 0 if threat has passed or resolved  
+  → Severity: 0–2 depending on impact
   → Likelihood: 1 unless ongoing or officially confirmed
 
 Example:
 - “IED exploded outside embassy” → Threat Environment, Severity 2  
 - “Molotov thrown at police station” → Threat Environment, Severity 2  
 - “Gas cylinder exploded at cafe” → Infrastructure & Resource Stability, Severity 1  
-- “WWII bomb found and defused” → Infrastructure & Resource Stability, Severity 0, Directionality 0
+- “WWII bomb found and defused” → Infrastructure & Resource Stability, Severity 0
 
 When uncertain about intent, use surrounding language as context. Unless there's evidence of malicious intent, treat as accidental.
 
 Resolved or Non-Active Threats:
 If a threat described in the scenario has already been resolved or is no longer active (e.g., rescue completed, suspects neutralized, fire extinguished), reflect this in the scoring:
 
-- Set **Directionality = 0** to indicate improvement or resolution.
 - Set **Likelihood = 0 or 1**, depending on whether there's a chance of recurrence or residual effects.
 - Set **Severity = 0 or 1**, based on remaining implications (e.g., reputational, political).
 - Do **not** create risks for events that are completely concluded **unless** ongoing impacts remain relevant.
 
 Example:
 - “A kidnapped individual was rescued and the suspects were killed”  
-  → Directionality = 0, Likelihood = 0 or 1, Severity = 0 or 1
+  → Likelihood = 0 or 1, Severity = 0 or 1
 
 ---
 
@@ -123,7 +120,6 @@ Avoid over-grouping that might obscure the nuance of how different risks impact 
         "name": "Short description of the risk",
         "category": "One of: Threat Environment, Operational Disruption, Health & Medical Risk, Client Profile & Exposure, Geo-Political & Intelligence Assessment, Infrastructure & Resource Stability",
         "severity": 0,
-        "directionality": 0,
         "likelihood": 0,
         "relevance": 0
       }}
