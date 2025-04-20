@@ -77,17 +77,13 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
 
     high_risks = [r for r in inputs if r.weighted_score() == 8]
     mid_risks = [r for r in inputs if 6 <= r.weighted_score() <= 7]
-    low_risks = [r for r in inputs if r.weighted_score() <= 5]
 
     cluster_counts = Counter()
 
     for cat, count in Counter([r.category for r in high_risks]).items():
-        if count >= 2:
-            cluster_counts[cat] += 1
-    for cat, count in Counter([r.category for r in mid_risks]).items():
         if count >= 3:
             cluster_counts[cat] += 1
-    for cat, count in Counter([r.category for r in low_risks]).items():
+    for cat, count in Counter([r.category for r in mid_risks]).items():
         if count >= 5:
             cluster_counts[cat] += 1
 
