@@ -1,5 +1,5 @@
 prompt = f"""
-You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the following higher-level risk categories, and estimate its severity (0-2), relevance (0-2), and likelihood (0-2). Use whole numbers only.
+You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the following higher-level risk categories, and estimate its severity (0-2) and likelihood (0-2). Use whole numbers only.
 
 ```
 Risk Categories:
@@ -15,6 +15,7 @@ Risk Categories:
 
 6. Infrastructure & Resource Stability – Risks tied to environment, infrastructure, and utilities. Includes weather damage, power/water/internet outages, old or compromised infrastructure, or general strain on local resources.
 ```
+
 Use the following logic to determine **Severity (0–2)** for each risk:
 
 - **0 = Low Impact**  
@@ -28,20 +29,17 @@ Use the following logic to determine **Severity (0–2)** for each risk:
 
 Use the following logic to determine **Likelihood (0–2)** for each risk:
 
-- **0 = Unlikely**\
-  Use for speculative or rare risks, or when phrasing signals uncertainty.\
-  Keywords: “unlikely,” “improbable,” “uncertain,” “no reports,” “not expected”\
-  Also use if the event has been resolved or the threat is no longer active.
+- **0 = Unlikely**
+  Use for speculative or rare risks, or when phrasing signals uncertainty.
+  Keywords: “unlikely,” “improbable,” “uncertain,” “no reports,” “not expected.”
 
-- **1 = Possible**\
-  Use for potential risks under observation or with unclear certainty.\
-  Keywords: “possible,” “could,” “might,” “may,” “potential,” “being monitored”\
-  This applies to forecast-based risks without confirmation or evidence of imminent impact.
+- **1 = Possible**
+  Use for potential risks under observation or with unclear certainty.
+  Keywords: “possible,” “could,” “might,” “may,” “potential,” “being monitored.”
 
-- **2 = Likely**\
-  Use if the risk is confirmed, ongoing, or highly probable, especially with official alerts.\
-  Keywords: “likely,” “expected,” “confirmed,” “ongoing,” “currently happening”\
-  Apply when government agencies, media, or scenario text clearly indicate that a risk **is happening** or **very likely to happen.**
+- **2 = Likely**
+  Use if the risk is confirmed, ongoing, or highly probable, especially with official alerts.
+  Keywords: “likely,” “expected,” “confirmed,” “ongoing,” “currently happening.”
 
 Examples:
 
@@ -50,34 +48,6 @@ Examples:
 - “Authorities could issue a curfew” → Likelihood = 1
 - “Storm may cause flooding” → Likelihood = 1
 - “A bomb was safely defused” → Likelihood = 0
-
-Assign Likelihood = 2 when the scenario says transport disruption is likely or expected, especially if caused by protests, marches, emergency response, or natural events.
-
-- Example: “Localized road and rail transport disruptions are likely.” → Likelihood = 2
-- Example: “Flight delays are expected due to storm activity.” → Likelihood = 2
-- Example: “Protest will block roads in the city center.” → Likelihood = 2
-- Avoid downgrading Likelihood just because the disruption hasn’t started yet. If the scenario clearly anticipates disruption, treat it as a likely operational impact.
-
-Hedged or Speculative Language = Likelihood 1
-
-Assign Likelihood = 1 if the scenario uses conditional or cautious phrasing such as: “may,” “could,” “might,” “possible,” “reportedly,” “being monitored,” “under consideration,” “cannot be ruled out” These terms indicate possibility, not certainty. Examples:
-
-- “Disruptions are possible” → Likelihood = 1
-- “Clashes between protesters and police cannot be ruled out” → Likelihood = 1
-- “Port closures could occur if tensions escalate” → Likelihood = 1
-- "Violence could disrupt flight operations" → Likelihood = 1
-- Do not score these as Likelihood = 2 unless there is official confirmation or concrete action already underway.
-
-Use the following logic to determine **Relevance (0–2)** for each risk:
-
-- **2 = High Relevance**\
-  The risk is a central part of the scenario. It is either directly affecting operations, safety, logistics, or security, and is clearly described.
-
-- **1 = Moderate Relevance**\
-  The risk is mentioned, but plays a secondary or indirect role. It may affect support functions or adjacent areas of concern.
-
-- **0 = Low Relevance**\
-  The risk is only mentioned in passing or as background information. It is not clearly actionable or significant in the context of the scenario.
 
 Special Guidance for Bombings and Explosions:
 
@@ -91,8 +61,8 @@ These often involve:
 - Targeted blasts (e.g., government offices, protests, religious sites)
 - Keywords: “bombing,” “attack,” “militant group,” “terrorist act,” “device detonated,” etc.
 
-→ Assign Category: Threat Environment\
-→ Severity: 1–2 depending on casualties or damage\
+→ Assign Category: Threat Environment
+→ Severity: 1–2 depending on casualties or damage
 → Likelihood: Based on whether it is confirmed, ongoing, or speculative
 
 — Accidental or Environmental Explosions
@@ -104,18 +74,9 @@ Includes:
 - WWII-era bomb disposal
 - Equipment malfunction (e.g., AC or boiler explosions)
 
-→ Assign Category: Infrastructure & Resource Stability\
-→ Severity: 0–2 depending on impact\
+→ Assign Category: Infrastructure & Resource Stability
+→ Severity: 0–2 depending on impact
 → Likelihood: 1 unless ongoing or officially confirmed
-
-Example:
-
-- “IED exploded outside embassy” → Threat Environment, Severity 2
-- “Molotov thrown at police station” → Threat Environment, Severity 2
-- “Gas cylinder exploded at cafe” → Infrastructure & Resource Stability, Severity 1
-- “WWII bomb found and defused” → Infrastructure & Resource Stability, Severity 0
-
-When uncertain about intent, use surrounding language as context. Unless there's evidence of malicious intent, treat as accidental.
 
 Resolved or Non-Active Threats:
 If a threat described in the scenario has already been resolved or is no longer active (e.g., rescue completed, suspects neutralized, fire extinguished), reflect this in the scoring:
@@ -124,11 +85,6 @@ If a threat described in the scenario has already been resolved or is no longer 
 - Set **Severity = 0 or 1**, based on remaining implications (e.g., reputational, political).
 - Do **not** create risks for events that are completely concluded **unless** ongoing impacts remain relevant.
 
-Example:
-
-- “A kidnapped individual was rescued and the suspects were killed”\
-  → Likelihood = 0 or 1, Severity = 0 or 1
-
 Grouping Risks from a Single Root Cause:
 Only group multiple effects into a single risk if:
 
@@ -136,7 +92,7 @@ Only group multiple effects into a single risk if:
 - They occur in the **same timeframe**
 - They affect the **same type of system** (e.g., road transport, public health, communications)
 
-Example:\
+Example:
 “Winter storm-related road transport disruption” can combine both “road closures” and “traffic delays” caused by snowfall in the same area and timeframe.
 
 Keep risks separate if they:
@@ -150,13 +106,12 @@ Avoid over-grouping that might obscure the nuance of how different risks impact 
 Return only a valid JSON array using this exact format:
 
 [
-{{
-"name": "Short description of the risk",
-"category": "One of: Threat Environment, Operational Disruption, Health & Medical Risk, Life Safety Risk, Strategic Risk Indicators, Infrastructure & Resource Stability",
-"severity": 0,
-"likelihood": 0,
-"relevance": 0
-}}
+  {{
+    "name": "Short description of the risk",
+    "category": "One of: Threat Environment, Operational Disruption, Health & Medical Risk, Life Safety Risk, Strategic Risk Indicators, Infrastructure & Resource Stability",
+    "severity": 0,
+    "likelihood": 0
+  }}
 ]
 
 Do not include explanations, markdown, or any text before or after the JSON.
