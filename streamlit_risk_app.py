@@ -124,6 +124,7 @@ def calculate_risk_summary(inputs: list[RiskInput], critical_alert: bool = False
     capped = min(raw_final, 10)
     frac = capped - math.floor(capped)
     final_score = math.ceil(capped) if frac >= 0.6 else math.floor(capped)
+
     return df, total_score, final_score, severity_bonus
 
 
@@ -174,7 +175,7 @@ if st.button("Analyze Scenario"):
         st.session_state["displayed"] = True
         st.rerun()
     else:
-        St.error("No risks identified. Please revise input.")
+        st.error("No risks identified. Please revise input.")
 
 # Editor and summary
 if st.session_state.get("displayed"):
@@ -209,4 +210,25 @@ if st.session_state.get("displayed"):
         name = cols[0].text_input("Scenario", value=ne.name, key=f"new_name_{j}")
         cat  = cols[1].selectbox("Risk Category", categories, index=categories.index(ne.category), key=f"new_cat_{j}")
         sev  = cols[2].selectbox("Severity", [0,1,2], index=ne.severity, key=f"new_sev_{j}")
-        lik  = cols[3].selectbox("Likelihood", [0,1,2], index=ne.likelihood, key=f"new_lik_{
+        lik  = cols[3].selectbox("Likelihood", [0,1,2], index=ne.likelihood, key=f"new_lik_{j}")
+        if cols[4].button("🗑️", key=f"new_del_{j}"):
+            st.session_state["new_entries"].pop(j)
+            st.rerun()
+        else:
+            st.session_state["new_entries"][j] = RiskInput(name, sev, lik, cat)
+    c1, _ = st.columns([1,5])
+    with c1:
+        if st.button("➕ Add Scenario"):
+            st.session_state["new_entries"].append(RiskInput("",0,0,"Threat Environment"))
+            st.rerun()
+    updated_inputs = edited + st.session_state["new_entries"]
+    df_summary, aggregated_score, final_score, severity_bonus = calculate_risk_summary(updated_inputs, st.session_state["critical_alert"])
+    df_summary.index = df_summary.index + 1
+    st.markdown("**Scores:**")
+    st.markdown(f"**Aggregated Risk Score:** {aggregated_score}")
+    st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
+    advice = advice_matrix(final_score)
+    for lvl, adv in advice.items():
+        st.markdown(f"**Advice for {lvl} Exposure:** {adv}")
+    if severity_bonus:
+        st.markdown(f"**Critical Alert Bonus Applied:** +{severity_bonus}")
