@@ -99,8 +99,8 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
     severity_bonus_map = {
         "Informational": 0,
         "Caution": 0,
-        "Warning": 1,
-        "Critical": 2
+        "Warning": 0.5,
+        "Critical": 1
     }
     severity_bonus = severity_bonus_map.get(alert_severity_level, 0) if alert_severity_level else 0
 
