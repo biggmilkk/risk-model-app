@@ -74,14 +74,15 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
     max_possible_score = len(inputs) * 8
     normalized_score = int(round((total_score / max_possible_score) * 10)) if max_possible_score > 0 else 0
 
-    high_risks = [r for r in inputs if r.weighted_score() > 7]
-    mid_risks = [r for r in inputs if 5 <= r.weighted_score() <= 7]
-    low_risks = [r for r in inputs if r.weighted_score() < 5]
+    high_risks = [r for r in inputs if r.weighted_score() == 8]
+    mid_risks = [r for r in inputs if 6 <= r.weighted_score() <= 7]
+    low_risks = [r for r in inputs if r.weighted_score() <= 5]
 
     cluster_counts = Counter()
 
-    for r in set([r.category for r in high_risks]):
-        cluster_counts[r] += 1
+    for cat, count in Counter([r.category for r in high_risks]).items():
+        if count >= 2:
+            cluster_counts[cat] += 1
     for cat, count in Counter([r.category for r in mid_risks]).items():
         if count >= 3:
             cluster_counts[cat] += 1
@@ -89,7 +90,7 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
         if count >= 5:
             cluster_counts[cat] += 1
 
-    qualifying_categories = [cat for cat, count in cluster_counts.items() if count >= 3]
+    qualifying_categories = [cat for cat, count in cluster_counts.items() if count >= 1]
 
     if len(qualifying_categories) >= 3:
         cluster_bonus = 2
