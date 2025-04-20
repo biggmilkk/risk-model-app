@@ -117,40 +117,41 @@ Example:
 - “A kidnapped individual was rescued and the suspects were killed”\
   → Likelihood = 0 or 1, Severity = 0 or 1
 
-Grouping Risks from a Single Root Cause:
-Only group multiple effects into a single risk if:
+Grouping Risks from a Single Root Cause
+Group multiple risks into one entry if all of the following are true:
+- They share the same root cause (e.g., heavy rainfall, a protest, an explosion)
+- They occur in the same timeframe
+- They affect the same general area or region
+- They impact closely related systems (e.g., road flooding, hazardous driving, flash flooding = grouped as flooding-related disruptions)
 
-- They share the **same root cause**
-- They occur in the **same timeframe**
-- They affect the **same type of system** (e.g., road transport and infrastructure, public health, communications)
+Group these under one scenario:
+- Flooding from a single weather system
+- Urban flooding
+- Flash flooding downstream
+- Ponding on roads
+- Inundated bridges or impassable roads
+= Disruption to rail, road, and air caused by water→ All grouped as: "Widespread flooding and transport disruption due to sustained rainfall"
 
-**Additional Guidance for Protest-Related or Weather-Related Transport Impacts**:
+Protest-related disruption
+- Road congestion
+- Traffic curbs
+- Delayed metro or bus services
+- Security deployment→ All grouped as: "Protest-related transport and mobility disruption"
 
-If multiple transport-related disruptions (e.g., traffic curbs, congestion, public transport delays) are caused by the **same protest or rally or weather system** and occur in the **same area and timeframe**, they should be **grouped into a single risk**.
-
-Group together:
-- “Traffic curbs along X roads”
-- “Congestion on major routes”
-- “Public transport delays due to protest crowding”
-- "Flooding cause temporary road closures, hazardous driving conditions, blockage or roads"
-
-Grouping and Naming Guidance:
-
-If multiple elements (e.g. heavy police presence, helicopter support, security cordon, heightened security) describe facets of the same security operation for a single incident, merge them into one risk. Choose a concise name that captures the overall operation (e.g. “Law enforcement security operation and cordon”).
-- Include only distinct risk types as separate entries. Do not list each supporting detail separately if they do not change the risk type or category.
-- When grouping, ensure the name conveys the collective impact: e.g., “Security operation with cordon and aerial support.”
-- Avoid over-grouping that might obscure the nuance of how different risks impact different aspects of a client's operations.
+Security operations
+- Helicopter patrol
+- Security cordon
+- Heightened police presence→ Group as: "Law enforcement security operation and cordon"
 
 Do not separate into different risks unless:
-- They affect **entirely different cities or regions**
-- Occur at **different times**
-- Are due to **different causes** (e.g., one due to a protest, another due to infrastructure failure)
+- They affect entirely different cities or regions
+- Occur at different times
+- Are due to different causes (e.g., one due to a protest, another due to infrastructure failure)
 
 Keep risks separate if they:
-
-- Affect **different sectors** (e.g., road vs air transport)
-- Occur at **different times** or **different locations**
-- Represent **distinct operational implications**
+- Affect different sectors (e.g., road vs air transport)
+- Occur at different times or different locations
+- Represent distinct operational implications
 
 **Consistency Guidance:**
  - Deduplicate overlapping or synonymous risks into a single entry.
