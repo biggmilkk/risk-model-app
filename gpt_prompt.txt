@@ -55,5 +55,7 @@ Return only a valid JSON array in this exact format:
 
 Do not include any explanations, markdown, or text outside the JSON.
 
+Current DateTime (UTC): {current_datetime}
+
 Scenario:
 {scenario_text}
