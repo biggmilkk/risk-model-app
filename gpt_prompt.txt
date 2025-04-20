@@ -18,37 +18,134 @@ Risk Categories:
 6. Infrastructure & Resource Stability – Risks tied to environment, utilities, or critical infrastructure. Includes power/water/internet outages, weather damage, or compromised infrastructure.
 ```
 
-Use the following logic to determine **Severity (0–2)** for each risk:
-- **0 = Low Impact** (minor context, no confirmed harm/disruption)
-- **1 = Moderate Impact** (non-critical incidents, moderate unrest/disruption)
-- **2 = High Impact** (serious casualties, major infrastructure damage)
 
 Use the following logic to determine **Likelihood (0–2)** for each risk:
-- **0 = Unlikely** (speculative, rare, or resolved threats)
-- **1 = Possible** (under observation; conditional language such as “may,” “could,” “might”)
-- **2 = Likely** (ongoing, confirmed, or highly probable)
 
-Use the following logic to determine **Immediacy (0–2)** for each risk:
-- **0 = Long-term** (phrases like “over the coming weeks/months”)
-- **1 = Near-term** (phrases like “expected tomorrow,” “within days,” “soon”)
-- **2 = Immediate** (phrases like “currently happening,” “underway,” “right now”)
+- **0 = Unlikely**\
+  Use for speculative or rare risks, or when phrasing signals uncertainty.\
+  Keywords: “unlikely,” “improbable,” “uncertain,” “no reports,” “not expected”\
+  Also use if the event has been resolved or the threat is no longer active.
 
-**Grouping and Naming Guidance:**
-- If multiple elements (e.g. heavy police presence, helicopter support, security cordon, heightened security) describe facets of the same security operation for a single incident, **merge them into one risk**. Choose a concise name that captures the overall operation (e.g. “Law enforcement security operation and cordon”).
-- Include only distinct risk types as separate entries. Do not list each supporting detail separately if they do not change the risk type or category.
-- When grouping, ensure the name conveys the collective impact: e.g., “Security operation with cordon and aerial support.”
+- **1 = Possible**\
+  Use for potential risks under observation or with unclear certainty.\
+  Keywords: “possible,” “could,” “might,” “may,” “potential,” “being monitored”\
+  This applies to forecast-based risks without confirmation or evidence of imminent impact.
 
-**Consistency Guidance:**
-- Deduplicate overlapping or synonymous risks into a single entry.
-- Sort the final JSON array by the “name” field in ascending (alphabetical) order to ensure deterministic output.
+- **2 = Likely**\
+  Use if the risk is confirmed, ongoing, or highly probable, especially with official alerts.\
+  Keywords: “likely,” “expected,” “confirmed,” “ongoing,” “currently happening”\
+  Apply when government agencies, media, or scenario text clearly indicate that a risk **is happening** or **very likely to happen.**
 
-**Special Guidance for Forecast-Based Weather Risks**
-If a scenario includes *forecasted weather events* (e.g., “could,” “may,” “possible,” or conditional phrasing), and **there is no confirmation** that disruptions are happening now or are officially declared, assign **Likelihood = 1**.
+Examples:
 
-Only assign **Likelihood = 2** when:
-- Authorities have issued official warnings (e.g., weather alert, flood advisory)
-- Disruptions are **ongoing** or **expected with high confidence** (e.g., “flooding is occurring,” “airport has suspended flights”)
-- There is specific mention of active impacts, e.g., bridges are closed or flights have been canceled.
+- “Firefighters are responding to a blaze” → Likelihood = 2
+- “Evacuation underway” → Likelihood = 2
+- “Authorities could issue a curfew” → Likelihood = 1
+- “Storm may cause flooding” → Likelihood = 1
+- “A bomb was safely defused” → Likelihood = 0
+
+Assign Likelihood = 2 when the scenario says transport disruption is likely or expected, especially if caused by protests, marches, emergency response, or natural events.
+
+- Example: “Localized road and rail transport disruptions are likely.” → Likelihood = 2
+- Example: “Flight delays are expected due to storm activity.” → Likelihood = 2
+- Example: “Protest will block roads in the city center.” → Likelihood = 2
+- Avoid downgrading Likelihood just because the disruption hasn’t started yet. If the scenario clearly anticipates disruption, treat it as a likely operational impact.
+
+Hedged or Speculative Language = Likelihood 1
+
+Assign Likelihood = 1 if the scenario uses conditional or cautious phrasing such as: “may,” “could,” “might,” “possible,” “reportedly,” “being monitored,” “under consideration,” “cannot be ruled out” These terms indicate possibility, not certainty. Examples:
+
+- “Disruptions are possible” → Likelihood = 1
+- “Clashes between protesters and police cannot be ruled out” → Likelihood = 1
+- “Port closures could occur if tensions escalate” → Likelihood = 1
+- "Violence could disrupt flight operations" → Likelihood = 1
+- Do not score these as Likelihood = 2 unless there is official confirmation or concrete action already underway.
+
+Special Guidance for Bombings and Explosions:
+
+Differentiate between intentional and unintentional explosions using context. Assign risk categories and scores accordingly.
+
+— Intentional Explosions (e.g., terrorism, targeted attacks, sabotage, crime)
+These often involve:
+
+- Improvised Explosive Devices (IEDs)
+- Molotov cocktails
+- Targeted blasts (e.g., government offices, protests, religious sites)
+- Keywords: “bombing,” “attack,” “militant group,” “terrorist act,” “device detonated,” etc.
+
+→ Assign Category: Threat Environment\
+→ Severity: 1–2 depending on casualties or damage\
+→ Likelihood: Based on whether it is confirmed, ongoing, or speculative
+
+— Accidental or Environmental Explosions
+Includes:
+
+- Gas line explosions
+- Industrial accidents
+- Electrical faults
+- WWII-era bomb disposal
+- Equipment malfunction (e.g., AC or boiler explosions)
+
+→ Assign Category: Infrastructure & Resource Stability\
+→ Severity: 0–2 depending on impact\
+→ Likelihood: 1 unless ongoing or officially confirmed
+
+Example:
+
+- “IED exploded outside embassy” → Threat Environment, Severity 2
+- “Molotov thrown at police station” → Threat Environment, Severity 2
+- “Gas cylinder exploded at cafe” → Infrastructure & Resource Stability, Severity 1
+- “WWII bomb found and defused” → Infrastructure & Resource Stability, Severity 0
+
+When uncertain about intent, use surrounding language as context. Unless there's evidence of malicious intent, treat as accidental.
+
+Resolved or Non-Active Threats:
+If a threat described in the scenario has already been resolved or is no longer active (e.g., rescue completed, suspects neutralized, fire extinguished), reflect this in the scoring:
+
+- Set **Likelihood = 0 or 1**, depending on whether there's a chance of recurrence or residual effects.
+- Set **Severity = 0 or 1**, based on remaining implications (e.g., reputational, political).
+- Do **not** create risks for events that are completely concluded **unless** ongoing impacts remain relevant.
+
+Example:
+
+- “A kidnapped individual was rescued and the suspects were killed”\
+  → Likelihood = 0 or 1, Severity = 0 or 1
+
+Grouping Risks from a Single Root Cause:
+Only group multiple effects into a single risk if:
+
+- They share the **same root cause**
+- They occur in the **same timeframe**
+- They affect the **same type of system** (e.g., road transport, public health, communications)
+
+Example:\
+“Winter storm-related road transport disruption” can combine both “road closures” and “traffic delays” caused by snowfall in the same area and timeframe.
+
+**Additional Guidance for Protest-Related Transport Impacts**:
+
+If multiple transport-related disruptions (e.g., traffic curbs, congestion, public transport delays) are caused by the **same protest or rally** and occur in the **same area and timeframe**, they should be **grouped into a single risk**.
+
+Group together:
+- “Traffic curbs along X roads”
+- “Congestion on major routes”
+- “Public transport delays due to protest crowding”
+
+→ Single risk name:  
+**“Protest-related transport disruption across central Kolkata”**  
+→ Category: **Operational Disruption**
+
+Do not separate into different risks unless:
+- They affect **entirely different cities or regions**
+- Occur at **different times**
+- Are due to **different causes** (e.g., one due to a protest, another due to infrastructure failure)
+
+Keep risks separate if they:
+
+- Affect **different sectors** (e.g., road vs air transport)
+- Occur at **different times** or **different locations**
+- Represent **distinct operational implications**
+
+Avoid over-grouping that might obscure the nuance of how different risks impact different aspects of a client's operations.
 
 Return only a valid JSON array in this exact format:
 [
