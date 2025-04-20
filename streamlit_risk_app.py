@@ -111,29 +111,59 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
     return df, total_score, final_score, severity_bonus
 
 def advice_matrix(score: int):
-    if score <= 3:
+    if score == 0:
+        return {
+            "Low": "NA",
+            "Moderate": "NA",
+            "High": "NA"
+        }
+    elif score <= 3:
         return {
             "Low": "Normal Precautions",
             "Moderate": "Normal Precautions",
             "High": "Normal Precautions"
         }
-    elif score <= 6:
+    elif score == 4:
         return {
             "Low": "Heightened Vigilance",
             "Moderate": "Normal Precautions",
             "High": "Normal Precautions"
         }
-    elif score <= 8:
+    elif score == 5:
         return {
-            "Low": "Crisis24 Proactive Engagement",
+            "Low": "Heightened Vigilance",
             "Moderate": "Heightened Vigilance",
             "High": "Normal Precautions"
         }
-    else:
+    elif score == 6:
+        return {
+            "Low": "Heightened Vigilance",
+            "Moderate": "Heightened Vigilance",
+            "High": "Heightened Vigilance"
+        }
+    elif score == 7:
+        return {
+            "Low": "Crisis24 Consultation Recommended",
+            "Moderate": "Heightened Vigilance",
+            "High": "Heightened Vigilance"
+        }
+    elif score == 8:
+        return {
+            "Low": "Crisis24 Consultation Recommended",
+            "Moderate": "Crisis24 Consultation Recommended",
+            "High": "Heightened Vigilance"
+        }
+    elif score == 9:
         return {
             "Low": "Crisis24 Proactive Engagement",
-            "Moderate": "Consider Crisis24 Consultation",
-            "High": "Heightened Vigilance"
+            "Moderate": "Crisis24 Consultation Recommended",
+            "High": "Crisis24 Consultation Recommended"
+        }
+    else:  # score 10
+        return {
+            "Low": "Crisis24 Proactive Engagement",
+            "Moderate": "Crisis24 Proactive Engagement",
+            "High": "Crisis24 Consultation Recommended"
         }
 
 st.set_page_config(layout="wide")
@@ -239,7 +269,7 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
     st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
 
     for tol, advice in advice_output.items():
-        st.markdown(f"**Advice for {tol} Tolerance:** {advice}")
+        st.markdown(f"**Advice for {tol} Exposure:** {advice}")
 
     if severity_bonus:
         st.markdown(f"**Alert Severity Bonus Applied:** {st.session_state.alert_severity_used} (+{severity_bonus})")
