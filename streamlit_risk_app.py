@@ -18,7 +18,7 @@ class RiskInput:
     category: str
 
     def weighted_score(self) -> float:
-        return (self.severity * 1) + (self.likelihood * 1)
+        return self.severity + self.likelihood
 
 
 def gpt_extract_risks(scenario_text: str) -> list[RiskInput]:
@@ -50,39 +50,27 @@ def gpt_extract_risks(scenario_text: str) -> list[RiskInput]:
         st.code(content, language="json")
         return []
 
-    # Build RiskInput list
     risks: list[RiskInput] = []
     for entry in parsed:
         entry.pop("directionality", None)
         try:
-            # Remove relevance key if present
-            entry.pop("relevance", None)
-            entry.pop("likelihood", None)
-            entry.pop("severity", None)
-            risks.append(RiskInput(**entry))
-        except TypeError:
-            # Fallback: expected keys name, severity, likelihood, category
-            try:
-                risks.append(RiskInput(
-                    name=entry.get("name", ""),
-                    severity=entry.get("severity", 0),
-                    likelihood=entry.get("likelihood", 0),
-                    category=entry.get("category", "")
-                ))
-            except Exception:
-                st.warning(f"Invalid entry skipped: {entry}")
+            risks.append(RiskInput(
+                name=entry["name"],
+                severity=entry["severity"],
+                likelihood=entry["likelihood"],
+                category=entry["category"]
+            ))
+        except KeyError as e:
+            st.warning(f"Missing key {e} in entry: {entry}")
+            continue
+
     if not risks:
         st.warning("Parsed successfully, but no valid risks were returned.")
     return risks
 
 
 def calculate_risk_summary(inputs: list[RiskInput], critical_alert: bool = False):
-    """
-    Calculates weighted, normalized, cluster bonuses, and severity bonus.
-    Rounds final score using custom rule (>=.6 up).
-    Returns: DataFrame, total_score, final_score, severity_bonus
-    """
-    # Build rows
+    # Build rows and compute raw score
     rows = []
     total_score = 0.0
     for r in inputs:
@@ -97,11 +85,11 @@ def calculate_risk_summary(inputs: list[RiskInput], critical_alert: bool = False
         })
     df = pd.DataFrame(rows)
 
-    # Normalize (max severity+likelihood = 2+2 =4 points per risk)
+    # Normalize (max per risk = 4)
     max_possible = len(inputs) * 4
     normalized = int(round((total_score / max_possible) * 10)) if max_possible > 0 else 0
 
-    # Cluster bonus (thresholds unchanged, but weighted_score now max=4)
+    # Cluster bonuses
     high = [r for r in inputs if r.weighted_score() == 4]
     mid = [r for r in inputs if 3 <= r.weighted_score() < 4]
     counts = Counter()
@@ -119,7 +107,7 @@ def calculate_risk_summary(inputs: list[RiskInput], critical_alert: bool = False
     else:
         cluster_bonus = 0
 
-    # Severity bonus only if critical
+    # Severity bonus for critical alert
     severity_bonus = 1 if critical_alert and total_score > 0 else 0
 
     # Debug info
@@ -131,14 +119,11 @@ def calculate_risk_summary(inputs: list[RiskInput], critical_alert: bool = False
     st.markdown(f"Cluster Bonus: {cluster_bonus}")
     st.markdown(f"Severity Bonus: {severity_bonus}")
 
-    # Custom rounding
+    # Custom rounding: only round up fractions >= 0.6
     raw_final = normalized + cluster_bonus + severity_bonus
     capped = min(raw_final, 10)
     frac = capped - math.floor(capped)
-    if frac >= 0.6:
-        final_score = math.ceil(capped)
-    else:
-        final_score = math.floor(capped)
+    final_score = math.ceil(capped) if frac >= 0.6 else math.floor(capped)
     return df, total_score, final_score, severity_bonus
 
 
@@ -175,12 +160,12 @@ st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", st.ses
 st.session_state["critical_alert"] = st.checkbox("Source is a Critical Severity Crisis24 Alert", value=st.session_state["critical_alert"])
 
 if st.button("Analyze Scenario"):
-    # reset
-    keys = {"scenario_text","critical_alert"}
+    # Reset session keys except inputs
+    keys = {"scenario_text", "critical_alert"}
     for k in list(st.session_state.keys()):
         if k not in keys:
             del st.session_state[k]
-    st.session_state.session_id = str(uuid4())
+    st.session_state["session_id"] = str(uuid4())
     risks = gpt_extract_risks(st.session_state["scenario_text"])
     if risks:
         st.session_state["risks"] = risks
@@ -189,7 +174,7 @@ if st.button("Analyze Scenario"):
         st.session_state["displayed"] = True
         st.rerun()
     else:
-        st.error("No risks identified. Please revise input.")
+        St.error("No risks identified. Please revise input.")
 
 # Editor and summary
 if st.session_state.get("displayed"):
@@ -224,26 +209,4 @@ if st.session_state.get("displayed"):
         name = cols[0].text_input("Scenario", value=ne.name, key=f"new_name_{j}")
         cat  = cols[1].selectbox("Risk Category", categories, index=categories.index(ne.category), key=f"new_cat_{j}")
         sev  = cols[2].selectbox("Severity", [0,1,2], index=ne.severity, key=f"new_sev_{j}")
-        lik  = cols[3].selectbox("Likelihood", [0,1,2], index=ne.likelihood, key=f"new_lik_{j}")
-        if cols[4].button("🗑️", key=f"new_del_{j}"):
-            st.session_state["new_entries"].pop(j)
-            st.rerun()
-        else:
-            st.session_state["new_entries"][j] = RiskInput(name, sev, lik, cat)
-    c1, _ = st.columns([1,5])
-    with c1:
-        if st.button("➕ Add Scenario"):
-            st.session_state["new_entries"].append(RiskInput("",0,0,categories[0]))
-            st.rerun()
-    # summary
-    all_inputs = edited + st.session_state["new_entries"]
-    df_sum, agg, final, bonus = calculate_risk_summary(all_inputs, st.session_state["critical_alert"])
-    df_sum.index += 1
-    st.markdown("**Scores:**")
-    st.markdown(f"**Aggregated Risk Score:** {agg}")
-    st.markdown(f"**Assessed Risk Score (1–10):** {final}")
-    advice = advice_matrix(final)
-    for lvl, adv in advice.items():
-        st.markdown(f"**Advice for {lvl} Exposure:** {adv}")
-    if bonus:
-        st.markdown(f"**Critical Alert Bonus Applied:** +{bonus}")
+        lik  = cols[3].selectbox("Likelihood", [0,1,2], index=ne.likelihood, key=f"new_lik_{
