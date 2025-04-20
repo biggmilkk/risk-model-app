@@ -233,4 +233,4 @@ if st.session_state["show_editor"]:
     for lvl, adv in advice.items():
         st.markdown(f"**Advice for {lvl} Exposure:** {adv}")
     if severity_bonus:
-        st.markdown(f"**Critical Ale
+        st.markdown(f"**Critical Alert Bonus Applied:** +{severity_bonus}")
