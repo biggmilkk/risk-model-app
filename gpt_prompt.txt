@@ -135,9 +135,12 @@ Group together:
 - “Public transport delays due to protest crowding”
 - "Flooding cause temporary road closures, hazardous driving conditions, blockage or roads"
 
-→ Single risk name:  
-**“Protest-related transport disruption across central Kolkata”**  
-→ Category: **Operational Disruption**
+Grouping and Naming Guidance:
+
+If multiple elements (e.g. heavy police presence, helicopter support, security cordon, heightened security) describe facets of the same security operation for a single incident, merge them into one risk. Choose a concise name that captures the overall operation (e.g. “Law enforcement security operation and cordon”).
+- Include only distinct risk types as separate entries. Do not list each supporting detail separately if they do not change the risk type or category.
+- When grouping, ensure the name conveys the collective impact: e.g., “Security operation with cordon and aerial support.”
+- Avoid over-grouping that might obscure the nuance of how different risks impact different aspects of a client's operations.
 
 Do not separate into different risks unless:
 - They affect **entirely different cities or regions**
@@ -149,8 +152,6 @@ Keep risks separate if they:
 - Affect **different sectors** (e.g., road vs air transport)
 - Occur at **different times** or **different locations**
 - Represent **distinct operational implications**
-
-Avoid over-grouping that might obscure the nuance of how different risks impact different aspects of a client's operations.
 
 Return only a valid JSON array in this exact format:
 [
