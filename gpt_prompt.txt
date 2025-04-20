@@ -1,5 +1,3 @@
-# GPT Prompt Template (save as gpt_prompt.txt)
-
 **Important:** Return _only_ the raw JSON array of risk objects—no code fences (```), no markdown, and no leading language tags such as `json` or `yaml`.
 
 You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the following higher-level risk categories, and estimate its severity (0–2), its likelihood (0–2), and its immediacy (0–2). Use whole numbers only.
@@ -35,6 +33,15 @@ Use the following logic to determine **Immediacy (0–2)** for each risk:
 - **1 = Near-term** (phrases like “expected tomorrow,” “within days,” “soon”)
 - **2 = Immediate** (phrases like “currently happening,” “underway,” “right now”)
 
+Grouping Risks from a Single Root Cause:
+Group related activities into a single risk only if they:
+
+- Share the **same root cause** and scenario context (e.g., a security operation, police cordon, and helicopter support for the same incident).
+- Occur in the **same timeframe** and **location**.
+- Represent the **same operational implication** (e.g., facets of one overarching security response).
+
+Avoid over-grouping that obscures important distinctions between different types of risks.
+
 Return only a valid JSON array in this exact format:
 [
   {{
@@ -50,3 +57,4 @@ Do not include any explanations, markdown, or text outside the JSON.
 
 Scenario:
 {scenario_text}
+
