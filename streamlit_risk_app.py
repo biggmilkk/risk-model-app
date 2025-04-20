@@ -14,12 +14,11 @@ client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 class RiskInput:
     name: str
     severity: int
-    relevance: int
     likelihood: int
     category: str
 
     def weighted_score(self) -> float:
-        return (self.severity * 1) + (self.relevance * 1.5) + (self.likelihood * 1)
+        return (self.severity * 1) + (self.likelihood * 1)
 
 
 def gpt_extract_risks(scenario_text: str) -> list[RiskInput]:
@@ -56,9 +55,22 @@ def gpt_extract_risks(scenario_text: str) -> list[RiskInput]:
     for entry in parsed:
         entry.pop("directionality", None)
         try:
+            # Remove relevance key if present
+            entry.pop("relevance", None)
+            entry.pop("likelihood", None)
+            entry.pop("severity", None)
             risks.append(RiskInput(**entry))
-        except TypeError as e:
-            st.warning(f"Invalid entry skipped: {entry}")
+        except TypeError:
+            # Fallback: expected keys name, severity, likelihood, category
+            try:
+                risks.append(RiskInput(
+                    name=entry.get("name", ""),
+                    severity=entry.get("severity", 0),
+                    likelihood=entry.get("likelihood", 0),
+                    category=entry.get("category", "")
+                ))
+            except Exception:
+                st.warning(f"Invalid entry skipped: {entry}")
     if not risks:
         st.warning("Parsed successfully, but no valid risks were returned.")
     return risks
@@ -81,18 +93,17 @@ def calculate_risk_summary(inputs: list[RiskInput], critical_alert: bool = False
             "Risk Category": r.category,
             "Severity": r.severity,
             "Likelihood": r.likelihood,
-            "Relevance": r.relevance,
             "Weighted Score": sc
         })
     df = pd.DataFrame(rows)
 
-    # Normalize
-    max_possible = len(inputs) * 7
+    # Normalize (max severity+likelihood = 2+2 =4 points per risk)
+    max_possible = len(inputs) * 4
     normalized = int(round((total_score / max_possible) * 10)) if max_possible > 0 else 0
 
-    # Cluster bonus
-    high = [r for r in inputs if r.weighted_score() == 8]
-    mid = [r for r in inputs if 6 <= r.weighted_score() <= 7]
+    # Cluster bonus (thresholds unchanged, but weighted_score now max=4)
+    high = [r for r in inputs if r.weighted_score() == 4]
+    mid = [r for r in inputs if 3 <= r.weighted_score() < 4]
     counts = Counter()
     for cat, cnt in Counter([r.category for r in high]).items():
         if cnt >= 3:
@@ -132,7 +143,6 @@ def calculate_risk_summary(inputs: list[RiskInput], critical_alert: bool = False
 
 
 def advice_matrix(score: int) -> dict[str, str]:
-    # Advice mapping
     mapping = {
         0: {"Low":"NA","Moderate":"NA","High":"NA"},
         1: {"Low":"Normal Precautions","Moderate":"Normal Precautions","High":"Normal Precautions"},
@@ -198,34 +208,32 @@ if st.session_state.get("displayed"):
     for idx, r in enumerate(risks):
         if idx in st.session_state["deleted"]:
             continue
-        cols = st.columns([2,2,1,1,1,0.5])
+        cols = st.columns([2,2,1,1,0.5])
         name = cols[0].text_input("Scenario", value=r.name, key=f"{prefix}_name_{idx}")
         cat  = cols[1].selectbox("Risk Category", categories, index=categories.index(r.category), key=f"{prefix}_cat_{idx}")
         sev  = cols[2].selectbox("Severity", [0,1,2], index=r.severity, key=f"{prefix}_sev_{idx}")
         lik  = cols[3].selectbox("Likelihood", [0,1,2], index=r.likelihood, key=f"{prefix}_lik_{idx}")
-        rel  = cols[4].selectbox("Relevance", [0,1,2], index=r.relevance, key=f"{prefix}_rel_{idx}")
-        if cols[5].button("🗑️", key=f"{prefix}_del_{idx}"):
+        if cols[4].button("🗑️", key=f"{prefix}_del_{idx}"):
             st.session_state["deleted"].add(idx)
             st.rerun()
         else:
-            edited.append(RiskInput(name, sev, rel, lik, cat))
+            edited.append(RiskInput(name, sev, lik, cat))
     st.markdown("---")
     for j, ne in enumerate(st.session_state["new_entries"]):
-        cols = st.columns([2,2,1,1,1,0.5])
+        cols = st.columns([2,2,1,1,0.5])
         name = cols[0].text_input("Scenario", value=ne.name, key=f"new_name_{j}")
         cat  = cols[1].selectbox("Risk Category", categories, index=categories.index(ne.category), key=f"new_cat_{j}")
         sev  = cols[2].selectbox("Severity", [0,1,2], index=ne.severity, key=f"new_sev_{j}")
         lik  = cols[3].selectbox("Likelihood", [0,1,2], index=ne.likelihood, key=f"new_lik_{j}")
-        rel  = cols[4].selectbox("Relevance", [0,1,2], index=ne.relevance, key=f"new_rel_{j}")
-        if cols[5].button("🗑️", key=f"new_del_{j}"):
+        if cols[4].button("🗑️", key=f"new_del_{j}"):
             st.session_state["new_entries"].pop(j)
             st.rerun()
         else:
-            st.session_state["new_entries"][j] = RiskInput(name, sev, rel, lik, cat)
+            st.session_state["new_entries"][j] = RiskInput(name, sev, lik, cat)
     c1, _ = st.columns([1,5])
     with c1:
         if st.button("➕ Add Scenario"):
-            st.session_state["new_entries"].append(RiskInput("",0,0,0,categories[0]))
+            st.session_state["new_entries"].append(RiskInput("",0,0,categories[0]))
             st.rerun()
     # summary
     all_inputs = edited + st.session_state["new_entries"]
