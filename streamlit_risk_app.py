@@ -60,7 +60,7 @@ def gpt_extract_risks(scenario_text):
     return risks
 
 
-def calculate_risk_summary(inputs, alert_severity_level=None):
+def calculate_risk_summary(inputs, critical_alert=False):
     # Build the summary rows and compute total raw score
     rows = []
     total_score = 0
@@ -104,14 +104,8 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
     else:
         cluster_bonus = 0
 
-    # Severity bonus map unchanged
-    severity_bonus_map = {
-        "Informational": 0,
-        "Caution": 0,
-        "Warning": 0.5,
-        "Critical": 1
-    }
-    severity_bonus = severity_bonus_map.get(alert_severity_level, 0) if alert_severity_level and total_score > 0 else 0
+    # Severity bonus: 1 point only if critical_alert
+    severity_bonus = 1 if critical_alert and total_score > 0 else 0
 
     # Debug output
     st.markdown("---")
@@ -150,7 +144,7 @@ def advice_matrix(score: int):
     elif score == 8:
         return {"Low": "Crisis24 Consultation Recommended", "Moderate": "Crisis24 Consultation Recommended", "High": "Heightened Vigilance"}
     elif score == 9:
-        return {"Low": "Crisis24 Proactive Engagement", "Moderate": "Crisis24 Consultation Recommended", "High": "Crisis24 Consultation Recommended"}  
+        return {"Low": "Crisis24 Proactive Engagement", "Moderate": "Crisis24 Consultation Recommended", "High": "Crisis24 Consultation Recommended"}
     else:
         return {"Low": "Crisis24 Proactive Engagement", "Moderate": "Crisis24 Proactive Engagement", "High": "Crisis24 Consultation Recommended"}
 
@@ -161,29 +155,21 @@ st.title("AI-Assisted Risk Model & Advice Matrix")
 # Initialize session state
 if "scenario_text" not in st.session_state:
     st.session_state["scenario_text"] = ""
-if "use_alert_severity" not in st.session_state:
-    st.session_state["use_alert_severity"] = False
-if "alert_severity_level" not in st.session_state:
-    st.session_state["alert_severity_level"] = "Informational"
-if "alert_severity_used" not in st.session_state:
-    st.session_state["alert_severity_used"] = None
+if "critical_alert" not in st.session_state:
+    st.session_state["critical_alert"] = False
+if "critical_alert_used" not in st.session_state:
+    st.session_state["critical_alert_used"] = False
 
 # Input form
 st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", value=st.session_state["scenario_text"])
-st.session_state["use_alert_severity"] = st.checkbox("Include source alert severity rating", value=st.session_state["use_alert_severity"])
-if st.session_state["use_alert_severity"]:
-    st.session_state["alert_severity_level"] = st.selectbox(
-        "Select Alert Severity (if applicable)",
-        ["Informational", "Caution", "Warning", "Critical"],
-        index=["Informational", "Caution", "Warning", "Critical"].index(st.session_state["alert_severity_level"])
-    )
+st.session_state["critical_alert"] = st.checkbox("Source alert is critical", value=st.session_state["critical_alert"])
 
 if st.button("Analyze Scenario"):
     scenario = st.session_state["scenario_text"]
-    alert_severity = st.session_state["alert_severity_level"] if st.session_state["use_alert_severity"] else None
+    critical = st.session_state["critical_alert"]
 
     # Reset other session keys
-    keys_to_keep = {"scenario_text", "use_alert_severity", "alert_severity_level"}
+    keys_to_keep = {"scenario_text", "critical_alert"}
     for key in list(st.session_state.keys()):
         if key not in keys_to_keep:
             del st.session_state[key]
@@ -195,7 +181,7 @@ if st.button("Analyze Scenario"):
         st.session_state.deleted_existing = set()
         st.session_state.new_entries = []
         st.session_state.show_editor = True
-        st.session_state.alert_severity_used = alert_severity
+        st.session_state.critical_alert_used = critical
         st.rerun()
     else:
         st.error("No risks were identified. Please check your scenario.")
@@ -221,12 +207,12 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
     for i, risk in enumerate(risks):
         if i in st.session_state.deleted_existing:
             continue
-        cols = st.columns([2,2,1,1,1,0.5])
+        cols = st.columns([2, 2, 1, 1, 1, 0.5])
         name = cols[0].text_input("Scenario", value=risk.name, key=f"{key_prefix}_name_{i}")
         category = cols[1].selectbox("Risk Category", categories, index=categories.index(risk.category), key=f"{key_prefix}_cat_{i}")
-        severity = cols[2].selectbox("Severity", [0,1,2], index=risk.severity, key=f"{key_prefix}_sev_{i}")
-        likelihood = cols[3].selectbox("Likelihood", [0,1,2], index=risk.likelihood, key=f"{key_prefix}_like_{i}")
-        relevance = cols[4].selectbox("Relevance", [0,1,2], index=risk.relevance, key=f"{key_prefix}_rel_{i}")
+        severity = cols[2].selectbox("Severity", [0, 1, 2], index=risk.severity, key=f"{key_prefix}_sev_{i}")
+        likelihood = cols[3].selectbox("Likelihood", [0, 1, 2], index=risk.likelihood, key=f"{key_prefix}_like_{i}")
+        relevance = cols[4].selectbox("Relevance", [0, 1, 2], index=risk.relevance, key=f"{key_prefix}_rel_{i}")
         if cols[5].button("🗑️", key=f"{key_prefix}_del_existing_{i}"):
             st.session_state.deleted_existing.add(i)
             st.rerun()
@@ -236,12 +222,12 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
     # New entries
     st.markdown("---")
     for j, row in enumerate(st.session_state.get("new_entries", [])):
-        cols = st.columns([2,2,1,1,1,0.5])
+        cols = st.columns([2, 2, 1, 1, 1, 0.5])
         name = cols[0].text_input("Scenario", value=row.name, key=f"name_new_{j}")
         category = cols[1].selectbox("Risk Category", categories, index=categories.index(row.category), key=f"cat_new_{j}")
-        severity = cols[2].selectbox("Severity", [0,1,2], index=row.severity, key=f"sev_new_{j}")
-        likelihood = cols[3].selectbox("Likelihood", [0,1,2], index=row.likelihood, key=f"like_new_{j}")
-        relevance = cols[4].selectbox("Relevance", [0,1,2], index=row.relevance, key=f"rel_new_{j}")
+        severity = cols[2].selectbox("Severity", [0, 1, 2], index=row.severity, key=f"sev_new_{j}")
+        likelihood = cols[3].selectbox("Likelihood", [0, 1, 2], index=row.likelihood, key=f"like_new_{j}")
+        relevance = cols[4].selectbox("Relevance", [0, 1, 2], index=row.relevance, key=f"rel_new_{j}")
         if cols[5].button("🗑️", key=f"del_new_{j}"):
             st.session_state.new_entries.pop(j)
             st.rerun()
@@ -249,17 +235,17 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
             st.session_state.new_entries[j] = RiskInput(name, severity, relevance, likelihood, category)
 
     # Add button
-    col_add, _ = st.columns([1,5])
+    col_add, _ = st.columns([1, 5])
     with col_add:
         if st.button("➕ Add Scenario", key="add_row_btn_bottom_inline"):
-            st.session_state.new_entries.append(RiskInput("", 0,0,0, categories[0]))
+            st.session_state.new_entries.append(RiskInput("", 0, 0, 0, categories[0]))
             st.rerun()
 
     # Summarize
     updated_inputs = edited_risks + st.session_state.new_entries
     df_summary, aggregated_score, final_score, severity_bonus = calculate_risk_summary(
         updated_inputs,
-        st.session_state.alert_severity_used
+        st.session_state.critical_alert_used
     )
     advice_output = advice_matrix(final_score)
 
@@ -273,4 +259,4 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
         st.markdown(f"**Advice for {tol} Exposure:** {advice}")
 
     if severity_bonus:
-        st.markdown(f"**Alert Severity Bonus Applied:** {st.session_state.alert_severity_used} (+{severity_bonus})")
+        st.markdown(f"**Critical Alert Bonus Applied:** +{severity_bonus}")
