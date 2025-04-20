@@ -102,7 +102,7 @@ def calculate_risk_summary(inputs: list[RiskInput], critical_alert: bool=False):
     # Mid-risk requires score of 4 or 5 and at least 5 occurrences per category
     mid_counts = Counter()
     for r in inputs:
-        if r.weighted_score() in (5):
+        if r.weighted_score() == 5:
             mid_counts[r.category] += 1
     mid_clusters = [cat for cat, cnt in mid_counts.items() if cnt >= 5]
 
