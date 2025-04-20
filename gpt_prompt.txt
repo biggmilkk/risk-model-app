@@ -125,14 +125,15 @@ Only group multiple effects into a single risk if:
 - They occur in the **same timeframe**
 - They affect the **same type of system** (e.g., road transport and infrastructure, public health, communications)
 
-**Additional Guidance for Protest-Related Transport Impacts**:
+**Additional Guidance for Protest-Related or Weather-Related Transport Impacts**:
 
-If multiple transport-related disruptions (e.g., traffic curbs, congestion, public transport delays) are caused by the **same protest or rally** and occur in the **same area and timeframe**, they should be **grouped into a single risk**.
+If multiple transport-related disruptions (e.g., traffic curbs, congestion, public transport delays) are caused by the **same protest or rally or weather system** and occur in the **same area and timeframe**, they should be **grouped into a single risk**.
 
 Group together:
 - “Traffic curbs along X roads”
 - “Congestion on major routes”
 - “Public transport delays due to protest crowding”
+- "Flooding cause temporary road closures, hazardous driving conditions, blockage or roads"
 
 → Single risk name:  
 **“Protest-related transport disruption across central Kolkata”**  
