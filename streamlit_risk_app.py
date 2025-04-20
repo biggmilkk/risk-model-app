@@ -92,7 +92,7 @@ def calculate_risk_summary(inputs: list[RiskInput], critical_alert: bool=False):
     df = pd.DataFrame(rows)
 
     # Normalize to 0–10 scale
-    max_possible = len(inputs) * 4
+    max_possible = len(inputs) * 6
     normalized = int(round((total_score / max_possible) * 10)) if max_possible else 0
 
     # Cluster logic: high-risk requires score == 6 and at least 2 occurrences per category
