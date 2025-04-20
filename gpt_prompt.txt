@@ -1,112 +1,51 @@
 # GPT Prompt Template (save as gpt_prompt.txt)
 
-You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the following higher-level risk categories, and estimate its severity (0-2) and likelihood (0-2). Use whole numbers only.
+You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the following higher-level risk categories, and estimate its severity (0–2), its likelihood (0–2), and its immediacy (0–2). Use whole numbers only.
 
 ```
 Risk Categories:
 1. Threat Environment – Includes political unrest, civil disobedience, terrorism, armed conflict, anti-government sentiment, and lawlessness. Examples: violent protests, attacks by militant groups, threats to government stability, forced evacuations, or targeted violence against specific groups.
 
-2. Operational Disruption – Disruptions to logistics, mobility, or essential services. Includes roadblocks, protest marches, transport suspensions, curfews, outages, or loss of access to fuel, water, comms, or air travel. **Include risks from large political rallies, marches, or strikes, even if peaceful, if they disrupt services.**
-   - **Also extract specific transport route disruptions** when multiple gathering points or routes are mentioned. Treat each key route (e.g., Howrah train station, Sealdah station, Exide intersection) as a separate risk if disruption is likely.
+2. Operational Disruption – Disruptions to logistics, mobility, or essential services. Includes roadblocks, protest marches, transport suspensions, curfews, outages, or loss of access to fuel, water, communications, or air travel.
+   - Also extract specific transport-route disruptions for each mentioned route or gathering point.
 
-3. Health & Medical Risk – Medical or health-related threats. Includes disease outbreaks, mental health deterioration, access issues to medication, overwhelmed medical infrastructure, and strain on evacuation capabilities.
+3. Health & Medical Risk – Medical or health-related threats. Includes disease outbreaks, medical infrastructure strain, evacuation health risks, and access to care issues.
 
-4. Life Safety Risk – Risks involving confirmed or potential harm to life, including injuries or fatalities. Includes armed conflict, active shooter events, building collapse, fire, bombings, stampedes, or crowd crush incidents. Also includes elevated threats to civilian life even without confirmed casualties.
+4. Life Safety Risk – Confirmed or potential harm to life, including injuries or fatalities. Includes violence, stampedes, crowd crush, building collapse, bombings, active shooter events.
 
-5. Strategic Risk Indicators – Elevation of overall threat level due to government advisories, prior intelligence assessments, elevated crisis posture, or response team activations.
+5. Strategic Risk Indicators – Elevated threat level due to advisories, intelligence assessments, crisis postures, or response activations.
 
-6. Infrastructure & Resource Stability – Risks tied to environment, infrastructure, and utilities. Includes weather damage, power/water/internet outages, old or compromised infrastructure, or general strain on local resources.
+6. Infrastructure & Resource Stability – Risks tied to environment, utilities, or critical infrastructure. Includes power/water/internet outages, weather damage, or compromised infrastructure.
 ```
 
 Use the following logic to determine **Severity (0–2)** for each risk:
-
-- **0 = Low Impact**  
-  No confirmed harm or disruption. Risk is minor or background context only.
-
-- **1 = Moderate Impact**  
-  Disruption, concern, or non-critical incidents. May include injuries, moderate unrest, or general instability.
-
-- **2 = High Impact**  
-  Confirmed or highly probable serious disruption, casualties, violence, or infrastructure damage.
+- **0 = Low Impact** (minor context, no confirmed harm/disruption)
+- **1 = Moderate Impact** (non-critical incidents, moderate unrest/disruption)
+- **2 = High Impact** (serious casualties, major infrastructure damage)
 
 Use the following logic to determine **Likelihood (0–2)** for each risk:
+- **0 = Unlikely** (speculative, rare, resolved threats)
+- **1 = Possible** (under observation, conditional language: may, could, might)
+- **2 = Likely** (ongoing, confirmed, highly probable)
 
-- **0 = Unlikely**
-  Use for speculative or rare risks, or when phrasing signals uncertainty.
-  Keywords: “unlikely,” “improbable,” “uncertain,” “no reports,” “not expected.”
+Use the following logic to determine **Immediacy (0–2)** for each risk:
+- **0 = Long-term** (phrases like “over the coming weeks/months”)
+- **1 = Near-term** (phrases like “expected tomorrow,” “within days,” “soon”)
+- **2 = Immediate** (phrases like “currently happening,” “underway,” “right now”)
 
-- **1 = Possible**
-  Use for potential risks under observation or with unclear certainty.
-  Keywords: “possible,” “could,” “might,” “may,” “potential,” “being monitored.”
-
-- **2 = Likely**
-  Use if the risk is confirmed, ongoing, or highly probable, especially with official alerts.
-  Keywords: “likely,” “expected,” “confirmed,” “ongoing,” “currently happening.”
-
-Examples:
-
-- “Firefighters are responding to a blaze” → Likelihood = 2
-- “Evacuation underway” → Likelihood = 2
-- “Authorities could issue a curfew” → Likelihood = 1
-- “Storm may cause flooding” → Likelihood = 1
-- “A bomb was safely defused” → Likelihood = 0
-
-Special Guidance for Bombings and Explosions:
-
-Differentiate between intentional and unintentional explosions using context. Assign risk categories and scores accordingly.
-
-— Intentional Explosions (e.g., terrorism, targeted attacks, sabotage, crime)
-These often involve:
-
-- Improvised Explosive Devices (IEDs)
-- Molotov cocktails
-- Targeted blasts (e.g., government offices, protests, religious sites)
-- Keywords: “bombing,” “attack,” “militant group,” “terrorist act,” “device detonated,” etc.
-
-→ Assign Category: Threat Environment  
-→ Severity: 1–2 depending on casualties or damage  
-→ Likelihood: Based on whether it is confirmed, ongoing, or speculative
-
-— Accidental or Environmental Explosions
-Includes:
-
-- Gas line explosions
-- Industrial accidents
-- Electrical faults
-- WWII-era bomb disposal
-- Equipment malfunction (e.g., AC or boiler explosions)
-
-→ Assign Category: Infrastructure & Resource Stability  
-→ Severity: 0–2 depending on impact  
-→ Likelihood: 1 unless ongoing or officially confirmed
-
-Resolved or Non-Active Threats:
-If a threat described in the scenario has already been resolved or is no longer active (e.g., rescue completed, suspects neutralized, fire extinguished), reflect this in the scoring:
-
-- Set **Severity** and **Likelihood** to 0 or 1 based on ongoing implications.
-- Do **not** create risks for events that are completely concluded unless ongoing impacts remain relevant.
-
-Grouping Risks from a Single Root Cause:
-Only group multiple effects into a single risk if:
-
-- They share the **same root cause**
-- They occur in the **same timeframe**
-- They affect the **same type of system** (e.g., road transport, public health, communications)
-
-Keep risks separate if they affect different sectors, times, locations, or represent distinct operational implications.
-
-Return only a valid JSON array using this exact format:
-
+Return only a valid JSON array in this exact format:
 [
-  {{
+  {
     "name": "Short description of the risk",
-    "category": "One of: Threat Environment, Operational Disruption, Health & Medical Risk, Life Safety Risk, Strategic Risk Indicators, Infrastructure & Resource Stability",
+    "category": "<One of the six categories>",
     "severity": 0,
-    "likelihood": 0
-  }}
+    "likelihood": 0,
+    "immediacy": 0
+  }
 ]
 
-Do not include explanations, markdown, or any text before or after the JSON.
+Do not include any explanations, markdown, or text outside the JSON.
 
 Scenario:
 {scenario_text}
+
