@@ -38,6 +38,10 @@ Use the following logic to determine **Immediacy (0–2)** for each risk:
 - Include only distinct risk types as separate entries. Do not list each supporting detail separately if they do not change the risk type or category.
 - When grouping, ensure the name conveys the collective impact: e.g., “Security operation with cordon and aerial support.”
 
+**Consistency Guidance:**
+- Deduplicate overlapping or synonymous risks into a single entry.
+- Sort the final JSON array by the “name” field in ascending (alphabetical) order to ensure deterministic output.
+
 Return only a valid JSON array in this exact format:
 [
   {{
@@ -53,4 +57,3 @@ Do not include any explanations, markdown, or text outside the JSON.
 
 Scenario:
 {scenario_text}
-
