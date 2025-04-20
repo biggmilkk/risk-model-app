@@ -207,7 +207,6 @@ if st.session_state["show_editor"]:
         imm = cols[4].selectbox("Immediacy", [0, 1, 2], index=r.immediacy, key=f"imm_{idx}")
         if cols[5].button("🗑️", key=f"del_{idx}"):
             st.session_state["deleted"].add(idx)
-            st.experimental_rerun()
         else:
             edited.append(RiskInput(name, sev, lik, imm, cat))
     st.markdown("---")
@@ -221,12 +220,10 @@ if st.session_state["show_editor"]:
         imm = cols[4].selectbox("Immediacy", [0, 1, 2], index=ne.immediacy, key=f"new_imm_{j}")
         if cols[5].button("🗑️", key=f"new_del_{j}"):
             st.session_state["new_entries"].pop(j)
-            st.experimental_rerun()
         else:
             st.session_state["new_entries"][j] = RiskInput(name, sev, lik, imm, cat)
     if st.button("➕ Add Scenario"):
         st.session_state["new_entries"].append(RiskInput("", 0, 0, 0, categories[0]))
-        st.experimental_rerun()
 
     # Summary
     inputs = edited + st.session_state["new_entries"]
