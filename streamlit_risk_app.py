@@ -175,7 +175,10 @@ if st.button("Analyze Scenario"):
         st.session_state.update({"risks": [], "deleted": set(), "new_entries": [], "show_editor": False})
         risks = gpt_extract_risks(st.session_state["scenario_text"])
         if risks:
+            # Always reset risks with new GPT output
             st.session_state["risks"] = risks
+            st.session_state["deleted"] = set()
+            st.session_state["new_entries"] = []
             st.session_state["show_editor"] = True
         else:
             st.error("No risks identified. Please revise input.")
