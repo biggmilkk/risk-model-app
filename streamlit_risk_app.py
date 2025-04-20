@@ -107,6 +107,14 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
     }
     severity_bonus = severity_bonus_map.get(alert_severity_level, 0) if alert_severity_level else 0
 
+    st.markdown("---")
+    st.markdown("**Debug Info:**")
+    st.markdown(f"Total Score: {total_score}")
+    st.markdown(f"Max Possible Score: {max_possible_score}")
+    st.markdown(f"Normalized Score: {normalized_score}")
+    st.markdown(f"Cluster Bonus: {cluster_bonus}")
+    st.markdown(f"Severity Bonus: {severity_bonus}")
+
     final_score = min(normalized_score + cluster_bonus + severity_bonus, 10)
     return df, total_score, final_score, severity_bonus
 
