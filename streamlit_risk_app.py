@@ -171,13 +171,17 @@ st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", st.ses
 st.session_state["critical_alert"] = st.checkbox("Source is a Critical Severity Crisis24 Alert", value=st.session_state["critical_alert"])
 
 if st.button("Analyze Scenario"):
-    st.session_state.update({"risks": [], "deleted": set(), "new_entries": [], "show_editor": False})
-    risks = gpt_extract_risks(st.session_state["scenario_text"])
-    if risks:
-        st.session_state["risks"] = risks
-        st.session_state["show_editor"] = True
+    # Prevent analysis on empty input
+    if not st.session_state["scenario_text"].strip():
+        st.warning("Please enter a threat scenario before analyzing.")
     else:
-        st.error("No risks identified. Please revise input.")
+        st.session_state.update({"risks": [], "deleted": set(), "new_entries": [], "show_editor": False})
+        risks = gpt_extract_risks(st.session_state["scenario_text"])
+        if risks:
+            st.session_state["risks"] = risks
+            st.session_state["show_editor"] = True
+        else:
+            st.error("No risks identified. Please revise input.")
 
 # Editor and Results
 if st.session_state["show_editor"]:
