@@ -1,4 +1,5 @@
-prompt = f"""
+# GPT Prompt Template (save as gpt_prompt.txt)
+
 You are a risk analyst AI. Given the following scenario, return a list of risks. For each risk, map it to one of the following higher-level risk categories, and estimate its severity (0-2) and likelihood (0-2). Use whole numbers only.
 
 ```
@@ -54,18 +55,36 @@ Special Guidance for Bombings and Explosions:
 
 Differentiate between intentional and unintentional explosions using context. Assign risk categories and scores accordingly.
 
-— Intentional Explosions (e.g., terrorism, targeted attacks, sabotage, crime):
-→ Category: Threat Environment, Severity 1–2 based on impact, Likelihood based on confirmation.
+— Intentional Explosions (e.g., terrorism, targeted attacks, sabotage, crime)
+These often involve:
 
-— Accidental or Environmental Explosions (e.g., gas line, industrial accident, WWII bomb disposal):
-→ Category: Infrastructure & Resource Stability, Severity 0–2 based on impact, Likelihood as above.
+- Improvised Explosive Devices (IEDs)
+- Molotov cocktails
+- Targeted blasts (e.g., government offices, protests, religious sites)
+- Keywords: “bombing,” “attack,” “militant group,” “terrorist act,” “device detonated,” etc.
+
+→ Assign Category: Threat Environment  
+→ Severity: 1–2 depending on casualties or damage  
+→ Likelihood: Based on whether it is confirmed, ongoing, or speculative
+
+— Accidental or Environmental Explosions
+Includes:
+
+- Gas line explosions
+- Industrial accidents
+- Electrical faults
+- WWII-era bomb disposal
+- Equipment malfunction (e.g., AC or boiler explosions)
+
+→ Assign Category: Infrastructure & Resource Stability  
+→ Severity: 0–2 depending on impact  
+→ Likelihood: 1 unless ongoing or officially confirmed
 
 Resolved or Non-Active Threats:
 If a threat described in the scenario has already been resolved or is no longer active (e.g., rescue completed, suspects neutralized, fire extinguished), reflect this in the scoring:
 
-- Set **Likelihood = 0 or 1**, depending on whether there's a chance of recurrence or residual effects.
-- Set **Severity = 0 or 1**, based on remaining implications (e.g., reputational, political).
-- Do **not** create risks for events that are completely concluded **unless** ongoing impacts remain relevant.
+- Set **Severity** and **Likelihood** to 0 or 1 based on ongoing implications.
+- Do **not** create risks for events that are completely concluded unless ongoing impacts remain relevant.
 
 Grouping Risks from a Single Root Cause:
 Only group multiple effects into a single risk if:
@@ -74,30 +93,20 @@ Only group multiple effects into a single risk if:
 - They occur in the **same timeframe**
 - They affect the **same type of system** (e.g., road transport, public health, communications)
 
-Example:
-“Winter storm-related road transport disruption” can combine both “road closures” and “traffic delays” caused by snowfall in the same area and timeframe.
-
-Keep risks separate if they:
-
-- Affect **different sectors** (e.g., road vs air transport)
-- Occur at **different times** or **different locations**
-- Represent **distinct operational implications**
-
-Avoid over-grouping that might obscure the nuance of how different risks impact different aspects of a client's operations.
+Keep risks separate if they affect different sectors, times, locations, or represent distinct operational implications.
 
 Return only a valid JSON array using this exact format:
 
 [
-  {
-    "name": "Short description of therisk",
+  {{
+    "name": "Short description of the risk",
     "category": "One of: Threat Environment, Operational Disruption, Health & Medical Risk, Life Safety Risk, Strategic Risk Indicators, Infrastructure & Resource Stability",
     "severity": 0,
     "likelihood": 0
-  }
+  }}
 ]
 
 Do not include explanations, markdown, or any text before or after the JSON.
 
 Scenario:
 {scenario_text}
-"""
