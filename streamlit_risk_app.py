@@ -23,13 +23,10 @@ class RiskInput:
 
 
 def gpt_extract_risks(scenario_text: str) -> list[RiskInput]:
-    """
-    Sends scenario_text to GPT prompt, parses JSON response into RiskInput objects.
-    Strips any markdown fences or leading tags.
-    """
     with open("gpt_prompt.txt", "r", encoding="utf-8") as f:
         prompt_template = f.read()
-    prompt = prompt_template.format(scenario_text=scenario_text)
+    now_utc = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    prompt = prompt_template.format(scenario_text=scenario_text, current_datetime=now_utc)
 
     with st.spinner("Analyzing..."):
         response = client.chat.completions.create(
