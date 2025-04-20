@@ -58,6 +58,17 @@ Assign Likelihood = 1 if the scenario uses conditional or cautious phrasing such
 - "Violence could disrupt flight operations" → Likelihood = 1
 - Do not score these as Likelihood = 2 unless there is official confirmation or concrete action already underway.
 
+Use the following logic to determine **Relevance (0–2)** for each risk:
+
+- **2 = High Relevance**\
+  The risk is a central part of the scenario. It is either directly affecting operations, safety, logistics, or security, and is clearly described.
+
+- **1 = Moderate Relevance**\
+  The risk is mentioned, but plays a secondary or indirect role. It may affect support functions or adjacent areas of concern.
+
+- **0 = Low Relevance**\
+  The risk is only mentioned in passing or as background information. It is not clearly actionable or significant in the context of the scenario.
+
 Special Guidance for Bombings and Explosions:
 
 Differentiate between intentional and unintentional explosions using context. Assign risk categories and scores accordingly.
@@ -117,24 +128,6 @@ Only group multiple effects into a single risk if:
 
 Example:\
 “Winter storm-related road transport disruption” can combine both “road closures” and “traffic delays” caused by snowfall in the same area and timeframe.
-
-**Additional Guidance for Protest-Related Transport Impacts**:
-
-If multiple transport-related disruptions (e.g., traffic curbs, congestion, public transport delays) are caused by the **same protest or rally** and occur in the **same area and timeframe**, they should be **grouped into a single risk**.
-
-Group together:
-- “Traffic curbs along X roads”
-- “Congestion on major routes”
-- “Public transport delays due to protest crowding”
-
-→ Single risk name:  
-**“Protest-related transport disruption across central Kolkata”**  
-→ Category: **Operational Disruption**
-
-Do not separate into different risks unless:
-- They affect **entirely different cities or regions**
-- Occur at **different times**
-- Are due to **different causes** (e.g., one due to a protest, another due to infrastructure failure)
 
 Keep risks separate if they:
 
