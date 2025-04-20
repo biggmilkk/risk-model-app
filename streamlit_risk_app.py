@@ -15,23 +15,23 @@ class RiskInput:
     name: str
     severity: int
     likelihood: int
+    immediacy: int
     category: str
 
     def weighted_score(self) -> float:
+        # Core score uses severity + likelihood
         return self.severity + self.likelihood
 
 
 def gpt_extract_risks(scenario_text: str) -> list[RiskInput]:
     """
     Sends scenario_text to GPT prompt, parses JSON response into RiskInput objects.
+    Assumes prompt returns fields: name, category, severity, likelihood, immediacy.
     """
-    # Load prompt template
     with open("gpt_prompt.txt", "r", encoding="utf-8") as f:
         prompt_template = f.read()
-
     prompt = prompt_template.format(scenario_text=scenario_text)
 
-    # Call GPT
     with st.spinner("Analyzing..."):
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -42,7 +42,6 @@ def gpt_extract_risks(scenario_text: str) -> list[RiskInput]:
 
     content = response.choices[0].message.content.strip()
 
-    # Parse JSON
     try:
         parsed = json.loads(content)
     except json.JSONDecodeError:
@@ -52,22 +51,22 @@ def gpt_extract_risks(scenario_text: str) -> list[RiskInput]:
 
     risks: list[RiskInput] = []
     for entry in parsed:
-        # Ensure expected keys
         name = entry.get("name")
         severity = entry.get("severity")
         likelihood = entry.get("likelihood")
+        immediacy = entry.get("immediacy")
         category = entry.get("category")
-        if name is None or severity is None or likelihood is None or category is None:
+        if None in (name, severity, likelihood, immediacy, category):
             st.warning(f"Skipping entry with missing fields: {entry}")
             continue
-        # Validate types
         try:
             risks.append(
                 RiskInput(
-                    name=str(name).strip(),
+                    name=str(name),
                     severity=int(severity),
                     likelihood=int(likelihood),
-                    category=str(category).strip()
+                    immediacy=int(immediacy),
+                    category=str(category)
                 )
             )
         except (ValueError, TypeError):
@@ -91,15 +90,16 @@ def calculate_risk_summary(inputs: list[RiskInput], critical_alert: bool = False
             "Risk Category": r.category,
             "Severity": r.severity,
             "Likelihood": r.likelihood,
+            "Immediacy": r.immediacy,
             "Weighted Score": sc
         })
     df = pd.DataFrame(rows)
 
-    # Normalize (max per risk = 4)
+    # Normalize (max per risk = severity max (2) + likelihood max (2) = 4)
     max_possible = len(inputs) * 4
     normalized = int(round((total_score / max_possible) * 10)) if max_possible > 0 else 0
 
-    # Cluster bonuses
+    # Cluster bonuses unchanged
     high = [r for r in inputs if r.weighted_score() == 4]
     mid = [r for r in inputs if 3 <= r.weighted_score() < 4]
     counts = Counter()
@@ -110,12 +110,7 @@ def calculate_risk_summary(inputs: list[RiskInput], critical_alert: bool = False
         if cnt >= 5:
             counts[cat] += 1
     qualifying = [c for c, cnt in counts.items() if cnt >= 1]
-    if len(qualifying) >= 3:
-        cluster_bonus = 2
-    elif len(qualifying) >= 1:
-        cluster_bonus = 1
-    else:
-        cluster_bonus = 0
+    cluster_bonus = 2 if len(qualifying) >= 3 else 1 if qualifying else 0
 
     # Severity bonus for critical alert
     severity_bonus = 1 if critical_alert and total_score > 0 else 0
@@ -129,7 +124,6 @@ def calculate_risk_summary(inputs: list[RiskInput], critical_alert: bool = False
     st.markdown(f"Cluster Bonus: {cluster_bonus}")
     st.markdown(f"Severity Bonus: {severity_bonus}")
 
-    # Custom rounding: only round up fractions >= 0.6
     raw_final = normalized + cluster_bonus + severity_bonus
     capped = min(raw_final, 10)
     frac = capped - math.floor(capped)
@@ -158,7 +152,7 @@ def advice_matrix(score: int) -> dict[str, str]:
 st.set_page_config(layout="wide")
 st.title("AI-Assisted Risk Model & Advice Matrix")
 
-# Session state
+# Session state initialization
 if "scenario_text" not in st.session_state:
     st.session_state["scenario_text"] = ""
 if "critical_alert" not in st.session_state:
@@ -175,11 +169,10 @@ if "show_editor" not in st.session_state:
     st.session_state["show_editor"] = False
 
 # Input form
-st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", value=st.session_state["scenario_text"])
+st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", st.session_state["scenario_text"])
 st.session_state["critical_alert"] = st.checkbox("Source is a Critical Severity Crisis24 Alert", value=st.session_state["critical_alert"])
 
 if st.button("Analyze Scenario"):
-    # Reset state
     st.session_state["session_id"] = str(uuid4())
     st.session_state["deleted"] = set()
     st.session_state["new_entries"] = []
@@ -191,9 +184,8 @@ if st.button("Analyze Scenario"):
     else:
         st.error("No risks identified. Please revise input.")
 
-# Editor and summary
+# Risk editor & summary
 if st.session_state["show_editor"]:
-    risks = st.session_state["risks"]
     categories = [
         "Threat Environment",
         "Operational Disruption",
@@ -204,42 +196,44 @@ if st.session_state["show_editor"]:
     ]
     st.subheader("Mapped Risks and Scores")
     edited = []
-    for idx, r in enumerate(risks):
+    for idx, r in enumerate(st.session_state["risks"]):
         if idx in st.session_state["deleted"]:
             continue
-        cols = st.columns([2,2,1,1,0.5])
+        cols = st.columns([2,2,1,1,1,0.5])
         name = cols[0].text_input("Scenario", value=r.name, key=f"name_{idx}")
-        cat = cols[1].selectbox("Risk Category", categories, index=categories.index(r.category), key=f"cat_{idx}")
-        sev = cols[2].selectbox("Severity", [0,1,2], index=r.severity, key=f"sev_{idx}")
-        lik = cols[3].selectbox("Likelihood", [0,1,2], index=r.likelihood, key=f"lik_{idx}")
-        if cols[4].button("🗑️", key=f"del_{idx}"):
+        cat  = cols[1].selectbox("Risk Category", categories, index=categories.index(r.category), key=f"cat_{idx}")
+        sev  = cols[2].selectbox("Severity", [0,1,2], index=r.severity, key=f"sev_{idx}")
+        lik  = cols[3].selectbox("Likelihood", [0,1,2], index=r.likelihood, key=f"lik_{idx}")
+        imm  = cols[4].selectbox("Immediacy", [0,1,2], index=r.immediacy, key=f"imm_{idx}")
+        if cols[5].button("🗑️", key=f"del_{idx}"):
             st.session_state["deleted"].add(idx)
             st.experimental_rerun()
         else:
-            edited.append(RiskInput(name, sev, lik, cat))
+            edited.append(RiskInput(name, sev, lik, imm, cat))
     st.markdown("---")
     # New entries
     for j, ne in enumerate(st.session_state["new_entries"]):
-        cols = st.columns([2,2,1,1,0.5])
+        cols = st.columns([2,2,1,1,1,0.5])
         name = cols[0].text_input("Scenario", value=ne.name, key=f"new_name_{j}")
-        cat = cols[1].selectbox("Risk Category", categories, index=categories.index(ne.category), key=f"new_cat_{j}")
-        sev = cols[2].selectbox("Severity", [0,1,2], index=ne.severity, key=f"new_sev_{j}")
-        lik = cols[3].selectbox("Likelihood", [0,1,2], index=ne.likelihood, key=f"new_lik_{j}")
-        if cols[4].button("🗑️", key=f"new_del_{j}"):
+        cat  = cols[1].selectbox("Risk Category", categories, index=categories.index(ne.category), key=f"new_cat_{j}")
+        sev  = cols[2].selectbox("Severity", [0,1,2], index=ne.severity, key=f"new_sev_{j}")
+        lik  = cols[3].selectbox("Likelihood", [0,1,2], index=ne.likelihood, key=f"new_lik_{j}")
+        imm  = cols[4].selectbox("Immediacy", [0,1,2], index=ne.immediacy, key=f"new_imm_{j}")
+        if cols[5].button("🗑️", key=f"new_del_{j}"):
             st.session_state["new_entries"].pop(j)
             st.experimental_rerun()
         else:
-            st.session_state["new_entries"][j] = RiskInput(name, sev, lik, cat)
-    # Add button
+            st.session_state["new_entries"][j] = RiskInput(name, sev, lik, imm, cat)
     if st.button("➕ Add Scenario"):
-        st.session_state["new_entries"].append(RiskInput("",0,0,"Threat Environment"))
+        st.session_state["new_entries"].append(RiskInput("",0,0,0,categories[0]))
         st.experimental_rerun()
 
     # Calculate and display summary
-    all_inputs = edited + st.session_state["new_entries"]
-    df_summary, total_score, final_score, severity_bonus = calculate_risk_summary(all_inputs, st.session_state["critical_alert"])
-    df_summary.index = df_summary.index + 1
+    inputs = edited + st.session_state["new_entries"]
+    df_summary, total_score, final_score, severity_bonus = calculate_risk_summary(inputs, st.session_state["critical_alert"])
+    df_summary.index += 1
     st.markdown("**Scores:**")
+    st.dataframe(df_summary)
     st.markdown(f"**Aggregated Risk Score:** {total_score}")
     st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
     advice = advice_matrix(final_score)
