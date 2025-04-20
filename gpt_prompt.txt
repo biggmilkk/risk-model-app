@@ -28,7 +28,7 @@ Use the following logic to determine Likelihood (0–2) for each risk:
 
 Immediacy (0–2) measures how fast the risk is expected to materialize or escalate.
 - 2 = High Immediacy → The risk is likely to materialize very quickly, or is already unfolding in a fast-moving or acute way.
-- 1 = Moderate Immediacy → Risk may take longer to escalate or develop gradually, or timing is unclear.
+- 1 = Moderate Immediacy → Risk may take longer to escalate or develop gradually, or timing is uncertain; this would be the default if unclear.
 - 0 = Low Immediacy → Risk is fully resolved or no longer active, or appears to be slow-moving.
 
 Even if a risk is ongoing (Likelihood = 2), immediacy may still be high if:
