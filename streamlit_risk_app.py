@@ -5,7 +5,9 @@ import openai
 from collections import Counter
 import json
 from uuid import uuid4
+import math
 
+# Initialize OpenAI client
 client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 @dataclass
@@ -18,6 +20,7 @@ class RiskInput:
 
     def weighted_score(self) -> int:
         return (self.severity * 1) + (self.relevance * 1.5) + (self.likelihood * 1)
+
 
 def gpt_extract_risks(scenario_text):
     with open("gpt_prompt.txt", "r", encoding="utf-8") as f:
@@ -37,7 +40,7 @@ def gpt_extract_risks(scenario_text):
 
     try:
         parsed = json.loads(content)
-    except Exception as e:
+    except Exception:
         st.error("Failed to parse GPT response.")
         st.code(content, language="json")
         return []
@@ -56,7 +59,9 @@ def gpt_extract_risks(scenario_text):
 
     return risks
 
+
 def calculate_risk_summary(inputs, alert_severity_level=None):
+    # Build the summary rows and compute total raw score
     rows = []
     total_score = 0
     for risk in inputs:
@@ -71,15 +76,19 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
             "Weighted Score": score
         })
 
+    # Create DataFrame
     df = pd.DataFrame(rows)
+
+    # Calculate normalized score (0-10 scale)
     max_possible_score = len(inputs) * 7
     normalized_score = int(round((total_score / max_possible_score) * 10)) if max_possible_score > 0 else 0
 
+    # Identify high- and mid-level risks for clustering
     high_risks = [r for r in inputs if r.weighted_score() == 8]
     mid_risks = [r for r in inputs if 6 <= r.weighted_score() <= 7]
 
+    # Determine cluster bonuses
     cluster_counts = Counter()
-
     for cat, count in Counter([r.category for r in high_risks]).items():
         if count >= 3:
             cluster_counts[cat] += 1
@@ -88,7 +97,6 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
             cluster_counts[cat] += 1
 
     qualifying_categories = [cat for cat, count in cluster_counts.items() if count >= 1]
-
     if len(qualifying_categories) >= 3:
         cluster_bonus = 2
     elif len(qualifying_categories) >= 1:
@@ -96,14 +104,16 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
     else:
         cluster_bonus = 0
 
+    # Severity bonus map unchanged
     severity_bonus_map = {
         "Informational": 0,
         "Caution": 0,
         "Warning": 0.5,
         "Critical": 1
     }
-    severity_bonus = severity_bonus_map.get(alert_severity_level, 0) if alert_severity_level else 0
+    severity_bonus = severity_bonus_map.get(alert_severity_level, 0) if alert_severity_level and total_score > 0 else 0
 
+    # Debug output
     st.markdown("---")
     st.markdown("**Debug Info:**")
     st.markdown(f"Total Score: {total_score}")
@@ -112,89 +122,67 @@ def calculate_risk_summary(inputs, alert_severity_level=None):
     st.markdown(f"Cluster Bonus: {cluster_bonus}")
     st.markdown(f"Severity Bonus: {severity_bonus}")
 
-    final_score = min(normalized_score + cluster_bonus + severity_bonus, 10)
+    # Custom rounding: only round up fractions >= 0.6
+    raw_final = normalized_score + cluster_bonus + severity_bonus
+    capped = min(raw_final, 10)
+    frac = capped - math.floor(capped)
+    if frac >= 0.6:
+        final_score = math.ceil(capped)
+    else:
+        final_score = math.floor(capped)
+
     return df, total_score, final_score, severity_bonus
+
 
 def advice_matrix(score: int):
     if score == 0:
-        return {
-            "Low": "NA",
-            "Moderate": "NA",
-            "High": "NA"
-        }
+        return {"Low": "NA", "Moderate": "NA", "High": "NA"}
     elif score <= 3:
-        return {
-            "Low": "Normal Precautions",
-            "Moderate": "Normal Precautions",
-            "High": "Normal Precautions"
-        }
+        return {"Low": "Normal Precautions", "Moderate": "Normal Precautions", "High": "Normal Precautions"}
     elif score == 4:
-        return {
-            "Low": "Heightened Vigilance",
-            "Moderate": "Normal Precautions",
-            "High": "Normal Precautions"
-        }
+        return {"Low": "Heightened Vigilance", "Moderate": "Normal Precautions", "High": "Normal Precautions"}
     elif score == 5:
-        return {
-            "Low": "Heightened Vigilance",
-            "Moderate": "Heightened Vigilance",
-            "High": "Normal Precautions"
-        }
+        return {"Low": "Heightened Vigilance", "Moderate": "Heightened Vigilance", "High": "Normal Precautions"}
     elif score == 6:
-        return {
-            "Low": "Heightened Vigilance",
-            "Moderate": "Heightened Vigilance",
-            "High": "Heightened Vigilance"
-        }
+        return {"Low": "Heightened Vigilance", "Moderate": "Heightened Vigilance", "High": "Heightened Vigilance"}
     elif score == 7:
-        return {
-            "Low": "Crisis24 Consultation Recommended",
-            "Moderate": "Heightened Vigilance",
-            "High": "Heightened Vigilance"
-        }
+        return {"Low": "Crisis24 Consultation Recommended", "Moderate": "Heightened Vigilance", "High": "Heightened Vigilance"}
     elif score == 8:
-        return {
-            "Low": "Crisis24 Consultation Recommended",
-            "Moderate": "Crisis24 Consultation Recommended",
-            "High": "Heightened Vigilance"
-        }
+        return {"Low": "Crisis24 Consultation Recommended", "Moderate": "Crisis24 Consultation Recommended", "High": "Heightened Vigilance"}
     elif score == 9:
-        return {
-            "Low": "Crisis24 Proactive Engagement",
-            "Moderate": "Crisis24 Consultation Recommended",
-            "High": "Crisis24 Consultation Recommended"
-        }
-    else:  # score 10
-        return {
-            "Low": "Crisis24 Proactive Engagement",
-            "Moderate": "Crisis24 Proactive Engagement",
-            "High": "Crisis24 Consultation Recommended"
-        }
+        return {"Low": "Crisis24 Proactive Engagement", "Moderate": "Crisis24 Consultation Recommended", "High": "Crisis24 Consultation Recommended"}  
+    else:
+        return {"Low": "Crisis24 Proactive Engagement", "Moderate": "Crisis24 Proactive Engagement", "High": "Crisis24 Consultation Recommended"}
 
+# Streamlit UI setup
 st.set_page_config(layout="wide")
 st.title("AI-Assisted Risk Model & Advice Matrix")
 
+# Initialize session state
 if "scenario_text" not in st.session_state:
     st.session_state["scenario_text"] = ""
-
 if "use_alert_severity" not in st.session_state:
     st.session_state["use_alert_severity"] = False
-
 if "alert_severity_level" not in st.session_state:
     st.session_state["alert_severity_level"] = "Informational"
-
 if "alert_severity_used" not in st.session_state:
     st.session_state["alert_severity_used"] = None
 
+# Input form
 st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", value=st.session_state["scenario_text"])
 st.session_state["use_alert_severity"] = st.checkbox("Include source alert severity rating", value=st.session_state["use_alert_severity"])
 if st.session_state["use_alert_severity"]:
-    st.session_state["alert_severity_level"] = st.selectbox("Select Alert Severity (if applicable)", ["Informational", "Caution", "Warning", "Critical"], index=["Informational", "Caution", "Warning", "Critical"].index(st.session_state["alert_severity_level"]))
+    st.session_state["alert_severity_level"] = st.selectbox(
+        "Select Alert Severity (if applicable)",
+        ["Informational", "Caution", "Warning", "Critical"],
+        index=["Informational", "Caution", "Warning", "Critical"].index(st.session_state["alert_severity_level"])
+    )
 
 if st.button("Analyze Scenario"):
     scenario = st.session_state["scenario_text"]
     alert_severity = st.session_state["alert_severity_level"] if st.session_state["use_alert_severity"] else None
 
+    # Reset other session keys
     keys_to_keep = {"scenario_text", "use_alert_severity", "alert_severity_level"}
     for key in list(st.session_state.keys()):
         if key not in keys_to_keep:
@@ -212,6 +200,7 @@ if st.button("Analyze Scenario"):
     else:
         st.error("No risks were identified. Please check your scenario.")
 
+# Risk editor & summary
 if st.session_state.get("show_editor") and st.session_state.get("risks") is not None:
     risks = st.session_state.risks
     categories = [
@@ -228,43 +217,50 @@ if st.session_state.get("show_editor") and st.session_state.get("risks") is not 
     st.subheader("Mapped Risks and Scores")
     edited_risks = []
 
+    # Existing risks
     for i, risk in enumerate(risks):
         if i in st.session_state.deleted_existing:
             continue
-        cols = st.columns([2, 2, 1, 1, 1, 0.5])
+        cols = st.columns([2,2,1,1,1,0.5])
         name = cols[0].text_input("Scenario", value=risk.name, key=f"{key_prefix}_name_{i}")
         category = cols[1].selectbox("Risk Category", categories, index=categories.index(risk.category), key=f"{key_prefix}_cat_{i}")
-        severity = cols[2].selectbox("Severity", [0, 1, 2], index=risk.severity, key=f"{key_prefix}_sev_{i}")
-        likelihood = cols[3].selectbox("Likelihood", [0, 1, 2], index=risk.likelihood, key=f"{key_prefix}_like_{i}")
-        relevance = cols[4].selectbox("Relevance", [0, 1, 2], index=risk.relevance, key=f"{key_prefix}_rel_{i}")
+        severity = cols[2].selectbox("Severity", [0,1,2], index=risk.severity, key=f"{key_prefix}_sev_{i}")
+        likelihood = cols[3].selectbox("Likelihood", [0,1,2], index=risk.likelihood, key=f"{key_prefix}_like_{i}")
+        relevance = cols[4].selectbox("Relevance", [0,1,2], index=risk.relevance, key=f"{key_prefix}_rel_{i}")
         if cols[5].button("🗑️", key=f"{key_prefix}_del_existing_{i}"):
             st.session_state.deleted_existing.add(i)
             st.rerun()
         else:
             edited_risks.append(RiskInput(name, severity, relevance, likelihood, category))
 
+    # New entries
     st.markdown("---")
     for j, row in enumerate(st.session_state.get("new_entries", [])):
-        cols = st.columns([2, 2, 1, 1, 1, 0.5])
+        cols = st.columns([2,2,1,1,1,0.5])
         name = cols[0].text_input("Scenario", value=row.name, key=f"name_new_{j}")
         category = cols[1].selectbox("Risk Category", categories, index=categories.index(row.category), key=f"cat_new_{j}")
-        severity = cols[2].selectbox("Severity", [0, 1, 2], index=row.severity, key=f"sev_new_{j}")
-        likelihood = cols[3].selectbox("Likelihood", [0, 1, 2], index=row.likelihood, key=f"like_new_{j}")
-        relevance = cols[4].selectbox("Relevance", [0, 1, 2], index=row.relevance, key=f"rel_new_{j}")
+        severity = cols[2].selectbox("Severity", [0,1,2], index=row.severity, key=f"sev_new_{j}")
+        likelihood = cols[3].selectbox("Likelihood", [0,1,2], index=row.likelihood, key=f"like_new_{j}")
+        relevance = cols[4].selectbox("Relevance", [0,1,2], index=row.relevance, key=f"rel_new_{j}")
         if cols[5].button("🗑️", key=f"del_new_{j}"):
             st.session_state.new_entries.pop(j)
             st.rerun()
         else:
             st.session_state.new_entries[j] = RiskInput(name, severity, relevance, likelihood, category)
 
-    col_add, _ = st.columns([1, 5])
+    # Add button
+    col_add, _ = st.columns([1,5])
     with col_add:
         if st.button("➕ Add Scenario", key="add_row_btn_bottom_inline"):
-            st.session_state.new_entries.append(RiskInput("", 0, 0, 0, categories[0]))
+            st.session_state.new_entries.append(RiskInput("", 0,0,0, categories[0]))
             st.rerun()
 
+    # Summarize
     updated_inputs = edited_risks + st.session_state.new_entries
-    df_summary, aggregated_score, final_score, severity_bonus = calculate_risk_summary(updated_inputs, st.session_state.alert_severity_used)
+    df_summary, aggregated_score, final_score, severity_bonus = calculate_risk_summary(
+        updated_inputs,
+        st.session_state.alert_severity_used
+    )
     advice_output = advice_matrix(final_score)
 
     df_summary.index = df_summary.index + 1
