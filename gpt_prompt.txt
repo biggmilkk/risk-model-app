@@ -15,6 +15,16 @@ Risk Categories:
 
 6. Infrastructure & Resource Stability – Risks tied to environment, infrastructure, and utilities. Includes weather damage, power/water/internet outages, old or compromised infrastructure, or general strain on local resources.
 ```
+Use the following logic to determine **Severity (0–2)** for each risk:
+
+- **0 = Low Impact**  
+  No confirmed harm or disruption. Risk is minor or background context only.
+
+- **1 = Moderate Impact**  
+  Disruption, concern, or non-critical incidents. May include injuries, moderate unrest, or general instability.
+
+- **2 = High Impact**  
+  Confirmed or highly probable serious disruption, casualties, violence, or infrastructure damage.
 
 Use the following logic to determine **Likelihood (0–2)** for each risk:
 
