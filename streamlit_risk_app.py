@@ -21,7 +21,6 @@ class RiskInput:
     def weighted_score(self) -> float:
         return self.severity + self.likelihood + self.immediacy
 
-
 def gpt_extract_risks(scenario_text: str) -> list[RiskInput]:
     with open("gpt_prompt.txt", "r", encoding="utf-8") as f:
         prompt_template = f.read()
