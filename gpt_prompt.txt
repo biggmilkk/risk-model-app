@@ -18,7 +18,6 @@ Risk Categories:
 6. Infrastructure & Resource Stability – Risks tied to environment, utilities, or critical infrastructure. Includes power/water/internet outages, weather damage, or compromised infrastructure.
 ```
 
-
 Use the following logic to determine **Likelihood (0–2)** for each risk:
 
 - **0 = Unlikely**\
@@ -50,6 +49,14 @@ Assign Likelihood = 2 when the scenario says transport disruption is likely or e
 - Example: “Flight delays are expected due to storm activity.” → Likelihood = 2
 - Example: “Protest will block roads in the city center.” → Likelihood = 2
 - Avoid downgrading Likelihood just because the disruption hasn’t started yet. If the scenario clearly anticipates disruption, treat it as a likely operational impact.
+
+**Special Guidance for Forecast-Based Weather Risks**
+If a scenario includes *forecasted weather events* (e.g., “could,” “may,” “possible,” or conditional phrasing), and **there is no confirmation** that disruptions are happening now or are officially declared, assign **Likelihood = 1**.
+
+Only assign **Likelihood = 2** when:
+- Authorities have issued official warnings (e.g., weather alert, flood advisory)
+- Disruptions are **ongoing** or **expected with high confidence** (e.g., “flooding is occurring,” “airport has suspended flights”)
+- There is specific mention of active impacts, e.g., bridges are closed or flights have been canceled.
 
 Hedged or Speculative Language = Likelihood 1
 
@@ -116,10 +123,7 @@ Only group multiple effects into a single risk if:
 
 - They share the **same root cause**
 - They occur in the **same timeframe**
-- They affect the **same type of system** (e.g., road transport, public health, communications)
-
-Example:\
-“Winter storm-related road transport disruption” can combine both “road closures” and “traffic delays” caused by snowfall in the same area and timeframe.
+- They affect the **same type of system** (e.g., road transport and infrastructure, public health, communications)
 
 **Additional Guidance for Protest-Related Transport Impacts**:
 
