@@ -6,6 +6,7 @@ Risk Categories:
 1. Threat Environment – Includes political unrest, civil disobedience, terrorism, armed conflict, anti-government sentiment, and lawlessness. Examples: violent protests, attacks by militant groups, threats to government stability, forced evacuations, or targeted violence against specific groups.
 
 2. Operational Disruption – Disruptions to logistics, mobility, or essential services. Includes roadblocks, protest marches, transport suspensions, curfews, outages, or loss of access to fuel, water, comms, or air travel. **Include risks from large political rallies, marches, or strikes, even if peaceful, if they disrupt services.**
+   - **Also extract specific transport route disruptions** when multiple gathering points or routes are mentioned. Treat each key route (e.g., Howrah train station, Sealdah station, Exide intersection) as a separate risk if disruption is likely.
 
 3. Health & Medical Risk – Medical or health-related threats. Includes disease outbreaks, mental health deterioration, access issues to medication, overwhelmed medical infrastructure, and strain on evacuation capabilities.
 
@@ -53,30 +54,11 @@ Special Guidance for Bombings and Explosions:
 
 Differentiate between intentional and unintentional explosions using context. Assign risk categories and scores accordingly.
 
-— Intentional Explosions (e.g., terrorism, targeted attacks, sabotage, crime)
-These often involve:
+— Intentional Explosions (e.g., terrorism, targeted attacks, sabotage, crime):
+→ Category: Threat Environment, Severity 1–2 based on impact, Likelihood based on confirmation.
 
-- Improvised Explosive Devices (IEDs)
-- Molotov cocktails
-- Targeted blasts (e.g., government offices, protests, religious sites)
-- Keywords: “bombing,” “attack,” “militant group,” “terrorist act,” “device detonated,” etc.
-
-→ Assign Category: Threat Environment
-→ Severity: 1–2 depending on casualties or damage
-→ Likelihood: Based on whether it is confirmed, ongoing, or speculative
-
-— Accidental or Environmental Explosions
-Includes:
-
-- Gas line explosions
-- Industrial accidents
-- Electrical faults
-- WWII-era bomb disposal
-- Equipment malfunction (e.g., AC or boiler explosions)
-
-→ Assign Category: Infrastructure & Resource Stability
-→ Severity: 0–2 depending on impact
-→ Likelihood: 1 unless ongoing or officially confirmed
+— Accidental or Environmental Explosions (e.g., gas line, industrial accident, WWII bomb disposal):
+→ Category: Infrastructure & Resource Stability, Severity 0–2 based on impact, Likelihood as above.
 
 Resolved or Non-Active Threats:
 If a threat described in the scenario has already been resolved or is no longer active (e.g., rescue completed, suspects neutralized, fire extinguished), reflect this in the scoring:
@@ -106,12 +88,12 @@ Avoid over-grouping that might obscure the nuance of how different risks impact 
 Return only a valid JSON array using this exact format:
 
 [
-  {{
-    "name": "Short description of the risk",
+  {
+    "name": "Short description of therisk",
     "category": "One of: Threat Environment, Operational Disruption, Health & Medical Risk, Life Safety Risk, Strategic Risk Indicators, Infrastructure & Resource Stability",
     "severity": 0,
     "likelihood": 0
-  }}
+  }
 ]
 
 Do not include explanations, markdown, or any text before or after the JSON.
