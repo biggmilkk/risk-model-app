@@ -34,13 +34,11 @@ Immediacy (0–2) measures how fast the risk is expected to materialize or escal
 Even if a risk is ongoing (Likelihood = 2), immediacy may still be high if:
 - It is rapidly escalating (e.g., protests turning violent, flooding worsening)
 - The operational impact is time-sensitive
-- The window to respond is closing
 This ensures that ongoing risks are not under-weighted and can still receive high total scores.
 
 Examples:
-- “Firefighters are responding to a blaze” → Likelihood = 2, Immediacy = 2
-- “Evacuation underway” → Likelihood = 2, Immediacy = 2
-- “Authorities could issue a curfew” → Likelihood = 1, Immediacy = 1
+- “Firefighters are responding to a blaze” → Likelihood = 2, Immediacy = 1
+- “Evacuation underway” → Likelihood = 2, Immediacy = 1
 - “Storm may cause flooding” → Likelihood = 1, Immediacy = 1
 - “A bomb was safely defused” → Likelihood = 0, Immediacy = 0
 
