@@ -19,7 +19,7 @@ class RiskInput:
     category: str
 
     def weighted_score(self) -> float:
-        return self.severity + self.likelihood
+        return self.severity + self.likelihood + self.immediacy
 
 
 def gpt_extract_risks(scenario_text: str) -> list[RiskInput]:
