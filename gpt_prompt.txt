@@ -153,6 +153,10 @@ Keep risks separate if they:
 - Occur at **different times** or **different locations**
 - Represent **distinct operational implications**
 
+**Consistency Guidance:**
+ - Deduplicate overlapping or synonymous risks into a single entry.
+ - Sort the final JSON array by the “name” field in ascending (alphabetical) order to ensure deterministic output.
+
 Return only a valid JSON array in this exact format:
 [
   {{
