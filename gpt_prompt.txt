@@ -42,6 +42,14 @@ Use the following logic to determine **Immediacy (0–2)** for each risk:
 - Deduplicate overlapping or synonymous risks into a single entry.
 - Sort the final JSON array by the “name” field in ascending (alphabetical) order to ensure deterministic output.
 
+**Special Guidance for Forecast-Based Weather Risks**
+If a scenario includes *forecasted weather events* (e.g., “could,” “may,” “possible,” or conditional phrasing), and **there is no confirmation** that disruptions are happening now or are officially declared, assign **Likelihood = 1**.
+
+Only assign **Likelihood = 2** when:
+- Authorities have issued official warnings (e.g., weather alert, flood advisory)
+- Disruptions are **ongoing** or **expected with high confidence** (e.g., “flooding is occurring,” “airport has suspended flights”)
+- There is specific mention of active impacts, e.g., bridges are closed or flights have been canceled.
+
 Return only a valid JSON array in this exact format:
 [
   {{
