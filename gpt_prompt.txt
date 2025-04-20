@@ -33,15 +33,15 @@ Use the following logic to determine **Immediacy (0–2)** for each risk:
 - **1 = Near-term** (phrases like “expected tomorrow,” “within days,” “soon”)
 - **2 = Immediate** (phrases like “currently happening,” “underway,” “right now”)
 
-Return only a valid JSON array in this exact format:
+Return only a valid JSON array in this exact format (escape braces for Python formatting):
 [
-  {
+  {{
     "name": "Short description of the risk",
     "category": "<One of the six categories>",
     "severity": 0,
     "likelihood": 0,
     "immediacy": 0
-  }
+  }}
 ]
 
 Do not include any explanations, markdown, or text outside the JSON.
