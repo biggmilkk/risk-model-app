@@ -37,13 +37,13 @@ Use the following logic to determine **Immediacy (0–2)** for each risk:
 
 Return only a valid JSON array in this exact format:
 [
-  {
+  {{
     "name": "Short description of the risk",
     "category": "<One of the six categories>",
     "severity": 0,
     "likelihood": 0,
     "immediacy": 0
-  }
+  }}
 ]
 
 Do not include any explanations, markdown, or text outside the JSON.
