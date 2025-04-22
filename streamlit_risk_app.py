@@ -191,9 +191,9 @@ if st.session_state["show_editor"]:
     severity_tooltip = (
         "Severity – How impactful is the risk?\n\n"
         "2 = High:\n"
-        "  - Serious consequences such as fatalities or major disruption\n\n"
+        "  - Serious consequences such as fatalities or major disruptions\n\n"
         "1 = Moderate:\n"
-        "  - Localized or moderate disruption\n\n"
+        "  - Localized or moderate disruptions\n\n"
         "0 = Low:\n"
         "  - Minor impact or speculative risk"
     )
@@ -203,7 +203,7 @@ if st.session_state["show_editor"]:
         "2 = High:\n"
         "  - Confirmed, ongoing, or very likely\n\n"
         "1 = Moderate:\n"
-        "  - Possible, forecasted, or under watch\n\n"
+        "  - Possible, potential, forecasted\n\n"
         "0 = Low:\n"
         "  - Resolved or unlikely to occur"
     )
