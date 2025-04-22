@@ -230,6 +230,7 @@ if st.session_state["show_editor"]:
         imm = cols[4].selectbox("Immediacy", [0, 1, 2], index=r.immediacy, key=f"imm_{idx}_{uid}", help=immediacy_tooltip)
         if cols[5].button("🗑️", key=f"del_{idx}_{uid}"):
             st.session_state["deleted"].add(idx)
+            st.rerun()
         else:
             edited.append(RiskInput(name, sev, lik, imm, cat))
 
@@ -242,6 +243,7 @@ if st.session_state["show_editor"]:
         imm = cols[4].selectbox("Immediacy", [0, 1, 2], index=ne.immediacy, key=f"new_imm_{j}", help=immediacy_tooltip)
         if cols[5].button("🗑️", key=f"new_del_{j}"):
             st.session_state["new_entries"].pop(j)
+            st.rerun()
         else:
             st.session_state["new_entries"][j] = RiskInput(name, sev, lik, imm, cat)
 
