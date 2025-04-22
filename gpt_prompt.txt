@@ -49,10 +49,8 @@ Assign when:
 Assign when:
 - No impact has occurred or is expected
 - Risk is **purely speculative** or **low-scale**
-- Scenario is about **preparedness, monitoring, or minor disruptions**
 
 **Examples:**
-- “Authorities are monitoring the situation”
 - “No confirmed damage reported”
 - “Minor travel delays expected”
 
