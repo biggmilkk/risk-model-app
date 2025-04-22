@@ -183,8 +183,30 @@ if st.session_state["show_editor"]:
         "Strategic Risk Indicators",
         "Infrastructure & Resource Stability"
     ]
+
+    # ✅ Tooltip text
+    severity_tooltip = (
+        "Severity = How impactful is the risk?\n"
+        "• 2 = Major disruption or fatalities\n"
+        "• 1 = Localized or moderate impact (default)\n"
+        "• 0 = Minimal or no impact"
+    )
+    likelihood_tooltip = (
+        "Likelihood = How likely is the risk to occur?\n"
+        "• 2 = Ongoing or confirmed\n"
+        "• 1 = Possible or forecasted (default)\n"
+        "• 0 = Resolved or speculative"
+    )
+    immediacy_tooltip = (
+        "Immediacy = How soon is the risk expected?\n"
+        "• 2 = Happening now or <24h\n"
+        "• 1 = Coming days or uncertain (default)\n"
+        "• 0 = Past or long-term"
+    )
+
     st.subheader("Mapped Risks and Scores")
     edited = []
+
     for idx, r in enumerate(st.session_state["risks"]):
         if idx in st.session_state["deleted"]:
             continue
@@ -192,9 +214,9 @@ if st.session_state["show_editor"]:
         cols = st.columns([2, 2, 1, 1, 1, 0.5])
         name = cols[0].text_input("Scenario", value=r.name, key=f"name_{idx}_{uid}")
         cat = cols[1].selectbox("Risk Category", categories, index=categories.index(r.category), key=f"cat_{idx}_{uid}")
-        sev = cols[2].selectbox("Severity", [0, 1, 2], index=r.severity, key=f"sev_{idx}_{uid}")
-        lik = cols[3].selectbox("Likelihood", [0, 1, 2], index=r.likelihood, key=f"lik_{idx}_{uid}")
-        imm = cols[4].selectbox("Immediacy", [0, 1, 2], index=r.immediacy, key=f"imm_{idx}_{uid}")
+        sev = cols[2].selectbox("Severity", [0, 1, 2], index=r.severity, key=f"sev_{idx}_{uid}", help=severity_tooltip)
+        lik = cols[3].selectbox("Likelihood", [0, 1, 2], index=r.likelihood, key=f"lik_{idx}_{uid}", help=likelihood_tooltip)
+        imm = cols[4].selectbox("Immediacy", [0, 1, 2], index=r.immediacy, key=f"imm_{idx}_{uid}", help=immediacy_tooltip)
         if cols[5].button("🗑️", key=f"del_{idx}_{uid}"):
             st.session_state["deleted"].add(idx)
         else:
@@ -204,9 +226,9 @@ if st.session_state["show_editor"]:
         cols = st.columns([2, 2, 1, 1, 1, 0.5])
         name = cols[0].text_input("Scenario", value=ne.name, key=f"new_name_{j}")
         cat = cols[1].selectbox("Risk Category", categories, index=categories.index(ne.category), key=f"new_cat_{j}")
-        sev = cols[2].selectbox("Severity", [0, 1, 2], index=ne.severity, key=f"new_sev_{j}")
-        lik = cols[3].selectbox("Likelihood", [0, 1, 2], index=ne.likelihood, key=f"new_lik_{j}")
-        imm = cols[4].selectbox("Immediacy", [0, 1, 2], index=ne.immediacy, key=f"new_imm_{j}")
+        sev = cols[2].selectbox("Severity", [0, 1, 2], index=ne.severity, key=f"new_sev_{j}", help=severity_tooltip)
+        lik = cols[3].selectbox("Likelihood", [0, 1, 2], index=ne.likelihood, key=f"new_lik_{j}", help=likelihood_tooltip)
+        imm = cols[4].selectbox("Immediacy", [0, 1, 2], index=ne.immediacy, key=f"new_imm_{j}", help=immediacy_tooltip)
         if cols[5].button("🗑️", key=f"new_del_{j}"):
             st.session_state["new_entries"].pop(j)
         else:
@@ -215,6 +237,7 @@ if st.session_state["show_editor"]:
     if st.button("➕ Add Scenario"):
         st.session_state["new_entries"].append(RiskInput("", 0, 0, 0, categories[0]))
 
+    # Final calculations and advice
     inputs = edited + st.session_state["new_entries"]
     df_summary, total_score, final_score, severity_bonus = calculate_risk_summary(inputs, st.session_state["critical_alert"])
     st.markdown("**Scores:**")
@@ -225,3 +248,4 @@ if st.session_state["show_editor"]:
         st.markdown(f"**Advice for {lvl} Exposure:** {adv}")
     if severity_bonus:
         st.markdown(f"**Critical Alert Bonus Applied:** +{severity_bonus}")
+
