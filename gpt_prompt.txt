@@ -78,7 +78,7 @@ Assign when:
 **Default score** when scenario mentions **forecast-based**, **speculative**, or **hedged risks**, or if there is no explicit information confirming high or unlikely / resolved risk scenarios.
 
 Assign when:
-- Scenario uses language like “could,” “may,” “possible”
+- Scenario uses language like “could,” “may,” “possible,” "might"
 - Risk is under **observation** or **monitoring**
 - **No confirmed impacts** yet
 - Described disruptions are **conditional** on further developments
@@ -87,6 +87,9 @@ Assign when:
 - “Heavy rain could cause flooding”
 - “Evacuations may be ordered”
 - “Storm being tracked for possible disruption”
+- "Severe weather could trigger flight delays and cancellations"
+- "Ponding on road surfaces could cause hazardous driving conditions"
+- "Flooding could block regional rail lines"
 
 **Likelihood = 0 (Unlikely / Resolved)**  
 Assign when:
