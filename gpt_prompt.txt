@@ -35,7 +35,7 @@ Assign when:
 - “High-impact storm forecast with potential for major flooding”
 
 **Severity = 1 (Moderate Severity)**  
-Assign when the scenario involves potential or confirmed **disruption, injury, or damage**, but the scale is **limited or localized**. **Default score** if there is no explicit confirmation of high or low severity in the risk scenario.
+Assign when the scenario involves potential or confirmed **disruption, injury, or damage**, but the scale is **limited or localized**. **Default score** if there is no explicit information confirming otherwise.
 
 Assign when:
 - Impacts are expected but **not widespread**
@@ -75,10 +75,10 @@ Assign when:
 - “Protest expected to block roads”
 
 **Likelihood = 1 (Possible / Uncertain)**  
-**Default score** when scenario mentions **forecast-based**, **speculative**, or **hedged risks**, or if there is no explicit information confirming high or unlikely / resolved risk scenarios.
+**Default score** when scenario mentions **forecast-based**, **speculative**, or **hedged risks**, or if there is no explicit information confirming otherwise.
 
 Assign when:
-- Scenario uses language like “could,” “may,” “possible,” "might"
+- Scenario uses language like “could,” “may,” “possible,” "might," "potential"
 - Risk is under **observation** or **monitoring**
 - **No confirmed impacts** yet
 - Described disruptions are **conditional** on further developments
