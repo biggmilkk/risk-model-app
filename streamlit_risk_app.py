@@ -183,26 +183,27 @@ if st.session_state["show_editor"]:
         "Strategic Risk Indicators",
         "Infrastructure & Resource Stability"
     ]
+    
+    st.subheader("Mapped Risks and Scores")
 
-    # Tooltip text for dropdowns
-severity_tooltip = """Severity – How impactful is the risk?
+    # Tooltip text block
+    severity_tooltip = """Severity – How impactful is the risk?
 
 • 2 = High: Major disruption or fatalities
 • 1 = Moderate: Localized or moderate impact
 • 0 = Low: Minimal or speculative impact"""
 
-likelihood_tooltip = """Likelihood – How likely is the risk to occur?
+    likelihood_tooltip = """Likelihood – How likely is the risk to occur?
 
 • 2 = High: Ongoing or confirmed
 • 1 = Moderate: Possible or forecasted
 • 0 = Low: Resolved or speculative"""
 
-immediacy_tooltip = """Immediacy – How soon is the risk expected?
+    immediacy_tooltip = """Immediacy – How soon is the risk expected?
 
 • 2 = High: Happening now or within 24h
 • 1 = Moderate: Expected in the coming days
 • 0 = Low: Past, long-term, or no urgency"""
-
 
     st.subheader("Mapped Risks and Scores")
     edited = []
