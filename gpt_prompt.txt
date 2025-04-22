@@ -86,7 +86,6 @@ Assign when:
 **Examples:**
 - “Heavy rain could cause flooding”
 - “Evacuations may be ordered”
-- “Storm being tracked for possible disruption”
 - "Severe weather could trigger flight delays and cancellations"
 - "Ponding on road surfaces could cause hazardous driving conditions"
 - "Flooding could block regional rail lines"
