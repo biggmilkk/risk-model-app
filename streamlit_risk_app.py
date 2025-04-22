@@ -187,23 +187,35 @@ if st.session_state["show_editor"]:
     st.subheader("Mapped Risks and Scores")
 
     # Tooltip text block
-    severity_tooltip = """Severity – How impactful is the risk?
+   severity_tooltip = (
+    "Severity – How impactful is the risk?\n\n"
+    "2 = High:\n"
+    "  • Serious consequences such as fatalities or major disruption\n\n"
+    "1 = Moderate:\n"
+    "  • Localized or moderate disruption (default)\n\n"
+    "0 = Low:\n"
+    "  • Minor impact or speculative risk"
+)
 
-• 2 = High: Major disruption or fatalities
-• 1 = Moderate: Localized or moderate impact
-• 0 = Low: Minimal or speculative impact"""
+likelihood_tooltip = (
+    "Likelihood – How likely is the risk to occur?\n\n"
+    "2 = High:\n"
+    "  • Confirmed, ongoing, or very likely\n\n"
+    "1 = Moderate:\n"
+    "  • Possible, forecasted, or under watch (default)\n\n"
+    "0 = Low:\n"
+    "  • Resolved or unlikely to occur"
+)
 
-    likelihood_tooltip = """Likelihood – How likely is the risk to occur?
-
-• 2 = High: Ongoing or confirmed
-• 1 = Moderate: Possible or forecasted
-• 0 = Low: Resolved or speculative"""
-
-    immediacy_tooltip = """Immediacy – How soon is the risk expected?
-
-• 2 = High: Happening now or within 24h
-• 1 = Moderate: Expected in the coming days
-• 0 = Low: Past, long-term, or no urgency"""
+immediacy_tooltip = (
+    "Immediacy – How soon is the risk expected?\n\n"
+    "2 = High:\n"
+    "  • Happening now or within 24 hours\n\n"
+    "1 = Moderate:\n"
+    "  • Timing unclear or expected in coming days (default)\n\n"
+    "0 = Low:\n"
+    "  • Past event or not expected soon"
+)
 
     st.subheader("Mapped Risks and Scores")
     edited = []
