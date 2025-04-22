@@ -15,62 +15,129 @@ Risk Categories:
 
 6. Infrastructure & Resource Stability – Risks tied to environment, utilities, or critical infrastructure. Includes power/water/internet outages, weather damage, or compromised infrastructure.
 
-Guideline for Likelihood (0–2) for each risk:
+**Severity (0–2) – Decision Tree**
 
-0 = Unlikely
-- Use for speculative or rare risks, or when phrasing signals uncertainty.Keywords: “unlikely,” “improbable,” “uncertain,” “no reports,” “not expected”Also use if the event has been resolved or the threat is no longer active.
+**Severity = 2 (High Severity)**  
+Assign when the scenario describes or implies **serious consequences** such as **fatalities, major damage, or large-scale disruption**.
 
-1 = Possible
-- Use for potential risks under observation or with unclear certainty.Keywords: “possible,” “could,” “might,” “may,” “potential,” “being monitored”This applies to forecast-based risks without confirmation or evidence of imminent impact.
+Assign when:
+- There is confirmed or credible risk of **loss of life**
+- Mass casaulty incidents involving more than 10 injuries or fatalities
+- Critical infrastructure, utilities, or operations are **heavily impacted**
+- **Wide-scale evacuations**, closures, or shutdowns are discussed
+- Impacts are described as **severe, widespread, or sustained**
 
-2 = Likely
-- Use if the risk is confirmed, ongoing, or highly probable, especially with official alerts.Keywords: “likely,” “expected,” “confirmed,” “ongoing,” “currently happening”Apply when government agencies, media, or scenario text clearly indicate that a risk is happening or very likely to happen.
+**Examples:**
+- “Fatalities confirmed”, “Widespread flooding damages infrastructure”
+- “Airport shut down due to protests”
+- “High-impact storm forecast with potential for major flooding”
 
-Assign Likelihood = 2 when the scenario says transport disruption is likely or expected, especially if caused by protests, marches, emergency response, or natural events.
+**Severity = 1 (Moderate Severity)**  
+Assign when the scenario involves potential or confirmed **disruption, injury, or damage**, but the scale is **limited or localized**. **Default score** if there is no explicit confirmation of high or low severity in the risk scenario.
 
-- Example: “Localized road and rail transport disruptions are likely.” → Likelihood = 2
-- Example: “Flight delays are expected due to storm activity.” → Likelihood = 2
-- Example: “Protest will block roads in the city center.” → Likelihood = 2
-- Avoid downgrading Likelihood just because the disruption hasn’t started yet. If the scenario clearly anticipates disruption, treat it as a likely operational impact.
+Assign when:
+- Impacts are expected but **not widespread**
+- Potential for **injuries** or **moderate disruption**
+- Effects are **significant** but not severe
 
-Forecast-Based Weather Scenarios:
-If a scenario uses hedged, conditional, or forecast-based language (e.g., “could,” “may,” “possible”), assign Likelihood = 1 unless:
-- There are confirmed disruptions happening now, or
-- Authorities have issued a specific, active warning for the affected risk (e.g., "Orange flood warning in effect")
-→ Simply mentioning a forecast (even with an alert) does not justify Likelihood = 2 unless the risk is already occurring or explicitly expected with high certainty.
+**Examples:**
+- “Localized road closures due to flooding”
+- “Small-scale clashes injure several people”
+- “Power outages in some areas”
 
-Examples:
-- “Authorities issued a flood warning; flooding is possible” → Likelihood = 1
-- “Authorities issued a flood warning; flash flooding is expected in low-lying areas” → Likelihood = 2
-- “Storm could lead to road closures” → Likelihood = 1
-- “Flooding has blocked several roadways” → Likelihood = 2
+**Severity = 0 (Low or No Severity)**  
+Assign when:
+- No impact has occurred or is expected
+- Risk is **purely speculative** or **low-scale**
+- Scenario is about **preparedness, monitoring, or minor disruptions**
 
-Hedged or Speculative Language = Likelihood 1
+**Examples:**
+- “Authorities are monitoring the situation”
+- “No confirmed damage reported”
+- “Minor travel delays expected”
 
-Assign Likelihood = 1 if the scenario uses conditional or cautious phrasing such as: “may,” “could,” “might,” “possible,” “reportedly,” “being monitored,” “under consideration,” “cannot be ruled out” These terms indicate possibility, not certainty. Examples:
+---
 
-- “Disruptions are possible” → Likelihood = 1
-- “Clashes between protesters and police cannot be ruled out” → Likelihood = 1
-- “Port closures could occur if tensions escalate” → Likelihood = 1
-- "Violence could disrupt flight operations" → Likelihood = 1
-- Do not score these as Likelihood = 2 unless there is official confirmation or concrete action already underway.
+**Likelihood (0–2) – Decision Tree**
 
-Guideline for Immediacy
-Immediacy (0–2) measures how fast the risk is expected to materialize or escalate.
-- 2 = High Immediacy → The risk is likely to materialize very quickly, or is already unfolding in a fast-moving or acute way.
-- 1 = Moderate Immediacy → Risk may take longer to escalate or develop gradually, or timing is uncertain; this would be the default if unclear.
-- 0 = Low Immediacy → Risk is fully resolved or no longer active, or appears to be slow-moving.
+**Likelihood = 2 (Likely / Confirmed)**  
+Assign when the scenario indicates the risk is **confirmed, ongoing, or very likely** to happen.
 
-Even if a risk is ongoing (Likelihood = 2), immediacy may still be high if:
-- It is rapidly escalating (e.g., protests turning violent, flooding worsening)
-- The operational impact is time-sensitive
-This ensures that ongoing risks are not under-weighted and can still receive high total scores.
+Assign when:
+- The event is actively happening or **confirmed by authorities**
+- Words like **“expected,” “likely,” “probably,” “ongoing,” or “currently”** are used to describe the risk
+- Official alerts are issued **with direct expected impacts**
+- Transport, health, or safety impacts are stated as **anticipated or imminent**
 
-Examples:
-- “Firefighters are responding to a blaze” → Likelihood = 2, Immediacy = 1
-- “Evacuation underway” → Likelihood = 2, Immediacy = 1
-- “Storm may cause flooding” → Likelihood = 1, Immediacy = 1
-- “A bomb was safely defused” → Likelihood = 0, Immediacy = 0
+**Examples:**
+- “Flooding is currently impacting low-lying areas”
+- “Authorities say disruptions are likely”
+- “Protest expected to block roads”
+
+**Likelihood = 1 (Possible / Uncertain)**  
+**Default score** when scenario mentions **forecast-based**, **speculative**, or **hedged risks**, or if there is no explicit information confirming high or unlikely / resolved risk scenarios.
+
+Assign when:
+- Scenario uses language like “could,” “may,” “possible”
+- Risk is under **observation** or **monitoring**
+- **No confirmed impacts** yet
+- Described disruptions are **conditional** on further developments
+
+**Examples:**
+- “Heavy rain could cause flooding”
+- “Evacuations may be ordered”
+- “Storm being tracked for possible disruption”
+
+**Likelihood = 0 (Unlikely / Resolved)**  
+Assign when:
+- The threat is **over**, resolved, or no longer active
+- Risk is **unlikely to materialize**
+- The issue is **contained**, or **past-tense only**
+
+**Examples:**
+- “Fire was extinguished, no further danger”
+- “Suspect apprehended, no ongoing threat”
+- “Authorities state impact is unlikely”
+
+---
+
+**Immediacy (0–2) – Decision Tree**
+
+**Immediacy = 2 (High Immediacy)**  
+Assign when the scenario indicates the risk is **almost certain to escalate, spread, or impact operations immediately or very soon**.
+
+Assign when:
+- The situation is unfolding **right now**, or
+- Authorities or reporting clearly imply **urgent, near-term impact** is imminent
+
+**Keywords and phrases to look for**:
+- "Rapidly escalating", "Worsening", "Spreading quickly", "Expected shortly"
+- "Evacuation underway", "Flooding already occurring", "Flights canceled today"
+- "Officials preparing for immediate impact"
+- Warnings for "next few hours" or "through the day"
+- Descriptions of acute or fast-moving hazards
+
+**Immediacy = 1 (Moderate Immediacy – Default)**  
+Assign when **timing is unclear** or the risk could develop gradually. This is the **default score** if the scenario describes a possible or likely risk but doesn’t mention timing.
+
+Use when:
+- Risk is still **developing**, or
+- Scenario uses **hedged or cautious language** without implying urgency
+
+**Keywords and phrases**:
+- "May occur", "Could escalate", "Possible", "Forecast for coming days"
+- "Being monitored", "Under observation", "Authorities preparing plans"
+- "No immediate threat" or "Timing uncertain"
+
+**Immediacy = 0 (Low Immediacy)**  
+Assign when:
+- The risk has **already passed** or been **resolved**
+- There’s **no urgency** or it's a **long-term background risk**
+- Impact is unlikely to occur soon even if it materializes later
+
+**Keywords and phrases**:
+- "Resolved", "Contained", "Stabilized", "Situation under control"
+- "Long-term", "Future concern", "Unlikely to escalate soon"
 
 Special Guidance for Bombings and Explosions:
 
@@ -122,33 +189,10 @@ Group multiple risks into one entry if all of the following are true:
 - They affect the same general area or region
 - They impact closely related systems (e.g., road flooding, hazardous driving, flash flooding = grouped as flooding-related disruptions)
 
-Group these under one scenario:
-- Flooding from a single weather system
-- Urban flooding
-- Flash flooding downstream
-- Ponding on roads
-- Inundated bridges or impassable roads
-= Disruption to rail, road, and air caused by water→ All grouped as: "Widespread flooding and transport disruption due to sustained rainfall"
-
-Protest-related disruption
-- Road congestion
-- Traffic curbs
-- Delayed metro or bus services
-- Security deployment→ All grouped as: "Protest-related transport and mobility disruption"
-
-Security operations
-- Helicopter patrol
-- Security cordon
-- Heightened police presence→ Group as: "Law enforcement security operation and cordon"
-
 Do not separate into different risks unless:
 - They affect entirely different cities or regions
-- Occur at different times
-- Are due to different causes (e.g., one due to a protest, another due to infrastructure failure)
-
-Keep risks separate if they:
-- Affect different sectors (e.g., road vs air transport)
 - Occur at different times or different locations
+- Are due to different causes (e.g., one due to a protest, another due to infrastructure failure)
 - Represent distinct operational implications
 
 **Consistency Guidance:**
