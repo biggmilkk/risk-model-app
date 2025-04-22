@@ -132,3 +132,114 @@ def advice_matrix(score: int) -> dict[str, str]:
         10: {"Low": "Crisis24 Proactive Engagement", "Moderate": "Crisis24 Proactive Engagement", "High": "Crisis24 Consultation Recommended"}
     }
     return mapping.get(score, mapping[0])
+
+# --- App UI ---
+st.set_page_config(layout="wide")
+st.title("AI-Assisted Risk Model & Advice Matrix")
+
+if "scenario_text" not in st.session_state:
+    st.session_state["scenario_text"] = ""
+if "critical_alert" not in st.session_state:
+    st.session_state["critical_alert"] = False
+if "risks" not in st.session_state:
+    st.session_state["risks"] = []
+if "deleted" not in st.session_state:
+    st.session_state["deleted"] = set()
+if "new_entries" not in st.session_state:
+    st.session_state["new_entries"] = []
+if "show_editor" not in st.session_state:
+    st.session_state["show_editor"] = False
+if "gpt_run_id" not in st.session_state:
+    st.session_state["gpt_run_id"] = str(uuid4())
+
+# Input
+st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", st.session_state["scenario_text"])
+st.session_state["critical_alert"] = st.checkbox("Source is a Critical Severity Crisis24 Alert", value=st.session_state["critical_alert"])
+
+if st.button("Analyze Scenario"):
+    if not st.session_state["scenario_text"].strip():
+        st.warning("Please enter a threat scenario before analyzing.")
+    else:
+        st.session_state.update({
+            "deleted": set(),
+            "new_entries": [],
+            "show_editor": False,
+            "gpt_run_id": str(uuid4())
+        })
+        risks = gpt_extract_risks(st.session_state["scenario_text"])
+        if risks:
+            st.session_state["risks"] = risks
+            st.session_state["show_editor"] = True
+        else:
+            st.error("No risks identified. Please revise input.")
+
+# Editor
+if st.session_state["show_editor"]:
+    categories = [
+        "Threat Environment",
+        "Operational Disruption",
+        "Health & Medical Risk",
+        "Life Safety Risk",
+        "Strategic Risk Indicators",
+        "Infrastructure & Resource Stability"
+    ]
+    st.subheader("Mapped Risks and Scores")
+    edited = []
+    for idx, r in enumerate(st.session_state["risks"]):
+        if idx in st.session_state["deleted"]:
+            continue
+        uid = st.session_state["gpt_run_id"]
+        cols = st.columns([2, 2, 1, 1, 1, 0.5])
+        name = cols[0].text_input("Scenario", value=r.name, key=f"name_{idx}_{uid}")
+        cat = cols[1].selectbox("Risk Category", categories, index=categories.index(r.category), key=f"cat_{idx}_{uid}")
+        sev = cols[2].selectbox(
+            "Severity", [0, 1, 2], index=r.severity, key=f"sev_{idx}_{uid}",
+            help="How impactful is the risk?\n• 2 = Serious damage/fatalities\n• 1 = Localized disruption (default)\n• 0 = Minor or speculative"
+        )
+        lik = cols[3].selectbox(
+            "Likelihood", [0, 1, 2], index=r.likelihood, key=f"lik_{idx}_{uid}",
+            help="How likely is the risk to occur?\n• 2 = Ongoing or confirmed\n• 1 = Possible or forecasted (default)\n• 0 = Resolved or speculative"
+        )
+        imm = cols[4].selectbox(
+            "Immediacy", [0, 1, 2], index=r.immediacy, key=f"imm_{idx}_{uid}",
+            help="How soon is the risk expected?\n• 2 = Immediate or <24h\n• 1 = Timing unclear or days ahead (default)\n• 0 = Long-term or resolved"
+        )
+        if cols[5].button("🗑️", key=f"del_{idx}_{uid}"):
+            st.session_state["deleted"].add(idx)
+        else:
+            edited.append(RiskInput(name, sev, lik, imm, cat))
+
+    for j, ne in enumerate(st.session_state["new_entries"]):
+        cols = st.columns([2, 2, 1, 1, 1, 0.5])
+        name = cols[0].text_input("Scenario", value=ne.name, key=f"new_name_{j}")
+        cat = cols[1].selectbox("Risk Category", categories, index=categories.index(ne.category), key=f"new_cat_{j}")
+        sev = cols[2].selectbox(
+            "Severity", [0, 1, 2], index=ne.severity, key=f"new_sev_{j}",
+            help="How impactful is the risk?\n• 2 = Serious damage/fatalities\n• 1 = Localized disruption (default)\n• 0 = Minor or speculative"
+        )
+        lik = cols[3].selectbox(
+            "Likelihood", [0, 1, 2], index=ne.likelihood, key=f"new_lik_{j}",
+            help="How likely is the risk to occur?\n• 2 = Ongoing or confirmed\n• 1 = Possible or forecasted (default)\n• 0 = Resolved or speculative"
+        )
+        imm = cols[4].selectbox(
+            "Immediacy", [0, 1, 2], index=ne.immediacy, key=f"new_imm_{j}",
+            help="How soon is the risk expected?\n• 2 = Immediate or <24h\n• 1 = Timing unclear or days ahead (default)\n• 0 = Long-term or resolved"
+        )
+        if cols[5].button("🗑️", key=f"new_del_{j}"):
+            st.session_state["new_entries"].pop(j)
+        else:
+            st.session_state["new_entries"][j] = RiskInput(name, sev, lik, imm, cat)
+
+    if st.button("➕ Add Scenario"):
+        st.session_state["new_entries"].append(RiskInput("", 0, 0, 0, categories[0]))
+
+    inputs = edited + st.session_state["new_entries"]
+    df_summary, total_score, final_score, severity_bonus = calculate_risk_summary(inputs, st.session_state["critical_alert"])
+    st.markdown("**Scores:**")
+    st.markdown(f"**Aggregated Risk Score:** {total_score}")
+    st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
+    advice = advice_matrix(final_score)
+    for lvl, adv in advice.items():
+        st.markdown(f"**Advice for {lvl} Exposure:** {adv}")
+    if severity_bonus:
+        st.markdown(f"**Critical Alert Bonus Applied:** +{severity_bonus}")
