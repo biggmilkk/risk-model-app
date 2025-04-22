@@ -184,9 +184,6 @@ if st.session_state["show_editor"]:
         "Infrastructure & Resource Stability"
     ]
     
-    st.subheader("Mapped Risks and Scores")
-
-    # Tooltip text block
        # --- Tooltip Definitions ---
     severity_tooltip = (
         "Severity – How impactful is the risk?\n\n"
