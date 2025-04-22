@@ -152,20 +152,6 @@ if "show_editor" not in st.session_state:
 if "gpt_run_id" not in st.session_state:
     st.session_state["gpt_run_id"] = str(uuid4())
 
-# Bulk Edit UI
-if st.session_state["risks"]:
-    with st.expander("🔄 Bulk Edit Risk Attributes"):
-        field_to_edit = st.selectbox("Select attribute to change", ["Severity", "Likelihood", "Immediacy"])
-        new_value = st.selectbox("New value", [0, 1, 2])
-        if st.button("Apply to All Risks"):
-            for risk in st.session_state["risks"]:
-                if field_to_edit == "Severity":
-                    risk.severity = new_value
-                elif field_to_edit == "Likelihood":
-                    risk.likelihood = new_value
-                elif field_to_edit == "Immediacy":
-                    risk.immediacy = new_value
-
 # Input Controls
 st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", st.session_state["scenario_text"])
 st.session_state["critical_alert"] = st.checkbox("Source is a Critical Severity Crisis24 Alert", value=st.session_state["critical_alert"])
@@ -232,7 +218,6 @@ if st.session_state["show_editor"]:
     inputs = edited + st.session_state["new_entries"]
     df_summary, total_score, final_score, severity_bonus = calculate_risk_summary(inputs, st.session_state["critical_alert"])
     st.markdown("**Scores:**")
-    st.dataframe(df_summary)
     st.markdown(f"**Aggregated Risk Score:** {total_score}")
     st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
     advice = advice_matrix(final_score)
