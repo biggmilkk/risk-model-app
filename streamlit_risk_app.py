@@ -178,7 +178,7 @@ if st.button("Analyze Scenario"):
             "deleted": set(),
             "new_entries": [],
             "show_editor": False,
-            "gpt_run_id": str(uuid4())  # Force refresh keys
+            "gpt_run_id": str(uuid4())
         })
         risks = gpt_extract_risks(st.session_state["scenario_text"])
         if risks:
@@ -232,7 +232,6 @@ if st.session_state["show_editor"]:
     inputs = edited + st.session_state["new_entries"]
     df_summary, total_score, final_score, severity_bonus = calculate_risk_summary(inputs, st.session_state["critical_alert"])
     st.markdown("**Scores:**")
-    st.dataframe(df_summary)
     st.markdown(f"**Aggregated Risk Score:** {total_score}")
     st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
     advice = advice_matrix(final_score)
