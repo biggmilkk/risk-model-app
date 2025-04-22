@@ -7,7 +7,7 @@ import json
 from uuid import uuid4
 import math
 from datetime import datetime
-
+# Version: v1233.23.4.2025
 # Initialize OpenAI client
 client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
