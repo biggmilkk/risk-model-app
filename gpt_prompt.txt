@@ -22,7 +22,7 @@ Assign when the scenario describes or implies **serious consequences** such as *
 
 Assign when:
 - There is confirmed or credible risk of **loss of life**
-- Mass casaulty incidents involving more than 10 injuries or fatalities
+- Mass casaulty incidents involving more than 4 injuries and/or fatalities
 - Critical infrastructure, utilities, or operations are **heavily impacted**
 - **Wide-scale evacuations**, closures, or shutdowns are discussed
 - Impacts are described as **severe, widespread, or sustained**
