@@ -182,6 +182,15 @@ Example:
 - “A kidnapped individual was rescued and the suspects were killed”\
   → Likelihood = 0 or 1, Severity = 0 or 1
 
+Date Comparison Logic for Immediacy and Likelihood:
+When evaluating Immediacy and Likelihood, compare the scenario's date with the current_datetime provided at the bottom of this prompt.
+Use the following logic:
+- If the event is occurring today (same date as current_datetime) → treat as ongoing.
+- If the event is occurring tomorrow or within 24 hours → consider high immediacy (2).
+- If the event occurred yesterday or more than 24 hours ago → likely lower immediacy (0 or 1), depending on whether residual impacts remain.
+- If the event date is in the future (more than 24 hours ahead) → assign Immediacy = 1 unless it is explicitly expected to happen immediately.
+- When date context is absent, use language-based cues (e.g., “ongoing,” “expected,” “possible”) to assign Likelihood and Immediacy as defined in their respective decision trees.
+
 Grouping Risks from a Single Root Cause
 Group multiple risks into one entry if all of the following are true:
 - They share the same root cause (e.g., heavy rainfall, a protest, an explosion)
