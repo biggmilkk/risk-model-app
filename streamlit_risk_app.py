@@ -152,6 +152,21 @@ if "show_editor" not in st.session_state:
 if "gpt_run_id" not in st.session_state:
     st.session_state["gpt_run_id"] = str(uuid4())
 
+# Bulk Edit UI
+if st.session_state["risks"]:
+    with st.expander("🔄 Bulk Edit Risk Attributes"):
+        field_to_edit = st.selectbox("Select attribute to change", ["Severity", "Likelihood", "Immediacy"])
+        new_value = st.selectbox("New value", [0, 1, 2])
+        if st.button("Apply to All Risks"):
+            for risk in st.session_state["risks"]:
+                if field_to_edit == "Severity":
+                    risk.severity = new_value
+                elif field_to_edit == "Likelihood":
+                    risk.likelihood = new_value
+                elif field_to_edit == "Immediacy":
+                    risk.immediacy = new_value
+
+# Input Controls
 st.session_state["scenario_text"] = st.text_area("Enter Threat Scenario", st.session_state["scenario_text"])
 st.session_state["critical_alert"] = st.checkbox("Source is a Critical Severity Crisis24 Alert", value=st.session_state["critical_alert"])
 
@@ -163,7 +178,7 @@ if st.button("Analyze Scenario"):
             "deleted": set(),
             "new_entries": [],
             "show_editor": False,
-            "gpt_run_id": str(uuid4())
+            "gpt_run_id": str(uuid4())  # Force refresh keys
         })
         risks = gpt_extract_risks(st.session_state["scenario_text"])
         if risks:
@@ -172,7 +187,7 @@ if st.button("Analyze Scenario"):
         else:
             st.error("No risks identified. Please revise input.")
 
-# Editor
+# Risk Editor and Summary
 if st.session_state["show_editor"]:
     categories = [
         "Threat Environment",
@@ -188,74 +203,24 @@ if st.session_state["show_editor"]:
         if idx in st.session_state["deleted"]:
             continue
         uid = st.session_state["gpt_run_id"]
-        cols = st.columns([2, 2, 1.5, 1.5, 1.5, 0.5])
+        cols = st.columns([2, 2, 1, 1, 1, 0.5])
         name = cols[0].text_input("Scenario", value=r.name, key=f"name_{idx}_{uid}")
         cat = cols[1].selectbox("Risk Category", categories, index=categories.index(r.category), key=f"cat_{idx}_{uid}")
-
-        with cols[2]:
-            sev = st.selectbox("Severity", [0, 1, 2], index=r.severity, key=f"sev_{idx}_{uid}")
-            with st.expander("ℹ️ About Severity"):
-                st.markdown("""
-- **2 (High)**: Serious damage, widespread disruption, or fatalities  
-- **1 (Moderate)**: Localized disruption or injuries *(default)*  
-- **0 (Low)**: Minor, speculative, or no impact  
-""")
-
-        with cols[3]:
-            lik = st.selectbox("Likelihood", [0, 1, 2], index=r.likelihood, key=f"lik_{idx}_{uid}")
-            with st.expander("ℹ️ About Likelihood"):
-                st.markdown("""
-- **2 (Likely)**: Confirmed, ongoing, or very likely  
-- **1 (Possible)**: Forecasted, unconfirmed, or speculative *(default)*  
-- **0 (Unlikely)**: Resolved, contained, or highly improbable  
-""")
-
-        with cols[4]:
-            imm = st.selectbox("Immediacy", [0, 1, 2], index=r.immediacy, key=f"imm_{idx}_{uid}")
-            with st.expander("ℹ️ About Immediacy"):
-                st.markdown("""
-- **2 (High)**: Currently happening or within 24 hours  
-- **1 (Moderate)**: Timing uncertain, may escalate soon *(default)*  
-- **0 (Low)**: Passed, controlled, or no near-term escalation  
-""")
-
+        sev = cols[2].selectbox("Severity", [0, 1, 2], index=r.severity, key=f"sev_{idx}_{uid}")
+        lik = cols[3].selectbox("Likelihood", [0, 1, 2], index=r.likelihood, key=f"lik_{idx}_{uid}")
+        imm = cols[4].selectbox("Immediacy", [0, 1, 2], index=r.immediacy, key=f"imm_{idx}_{uid}")
         if cols[5].button("🗑️", key=f"del_{idx}_{uid}"):
             st.session_state["deleted"].add(idx)
         else:
             edited.append(RiskInput(name, sev, lik, imm, cat))
 
     for j, ne in enumerate(st.session_state["new_entries"]):
-        cols = st.columns([2, 2, 1.5, 1.5, 1.5, 0.5])
+        cols = st.columns([2, 2, 1, 1, 1, 0.5])
         name = cols[0].text_input("Scenario", value=ne.name, key=f"new_name_{j}")
         cat = cols[1].selectbox("Risk Category", categories, index=categories.index(ne.category), key=f"new_cat_{j}")
-
-        with cols[2]:
-            sev = st.selectbox("Severity", [0, 1, 2], index=ne.severity, key=f"new_sev_{j}")
-            with st.expander("ℹ️ About Severity"):
-                st.markdown("""
-- **2 (High)**: Serious damage, widespread disruption, or fatalities  
-- **1 (Moderate)**: Localized disruption or injuries *(default)*  
-- **0 (Low)**: Minor, speculative, or no impact  
-""")
-
-        with cols[3]:
-            lik = st.selectbox("Likelihood", [0, 1, 2], index=ne.likelihood, key=f"new_lik_{j}")
-            with st.expander("ℹ️ About Likelihood"):
-                st.markdown("""
-- **2 (Likely)**: Confirmed, ongoing, or very likely  
-- **1 (Possible)**: Forecasted, unconfirmed, or speculative *(default)*  
-- **0 (Unlikely)**: Resolved, contained, or highly improbable  
-""")
-
-        with cols[4]:
-            imm = st.selectbox("Immediacy", [0, 1, 2], index=ne.immediacy, key=f"new_imm_{j}")
-            with st.expander("ℹ️ About Immediacy"):
-                st.markdown("""
-- **2 (High)**: Currently happening or within 24 hours  
-- **1 (Moderate)**: Timing uncertain, may escalate soon *(default)*  
-- **0 (Low)**: Passed, controlled, or no near-term escalation  
-""")
-
+        sev = cols[2].selectbox("Severity", [0, 1, 2], index=ne.severity, key=f"new_sev_{j}")
+        lik = cols[3].selectbox("Likelihood", [0, 1, 2], index=ne.likelihood, key=f"new_lik_{j}")
+        imm = cols[4].selectbox("Immediacy", [0, 1, 2], index=ne.immediacy, key=f"new_imm_{j}")
         if cols[5].button("🗑️", key=f"new_del_{j}"):
             st.session_state["new_entries"].pop(j)
         else:
@@ -267,6 +232,7 @@ if st.session_state["show_editor"]:
     inputs = edited + st.session_state["new_entries"]
     df_summary, total_score, final_score, severity_bonus = calculate_risk_summary(inputs, st.session_state["critical_alert"])
     st.markdown("**Scores:**")
+    st.dataframe(df_summary)
     st.markdown(f"**Aggregated Risk Score:** {total_score}")
     st.markdown(f"**Assessed Risk Score (1–10):** {final_score}")
     advice = advice_matrix(final_score)
