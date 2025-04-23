@@ -17,6 +17,11 @@ Risk Categories:
 
 6. Infrastructure & Resource Stability – Risks tied to environment, utilities, or critical infrastructure. Includes power/water/internet outages, weather damage, or compromised infrastructure.
 
+**Timezone Inference:**  
+If the scenario references a location (city, country, or region), assume all times described are in the **local timezone** of that location.  
+If no location is mentioned, default to UTC.  
+If multiple locations are referenced, use the one most relevant to the event.
+
 **Severity (0–2) – Decision Tree**
 
 **Severity = 2 (High Severity)**  
@@ -184,14 +189,15 @@ Example:
 - “A kidnapped individual was rescued and the suspects were killed”\
   → Likelihood = 0 or 1, Severity = 0 or 1
 
-Date Comparison Logic for Immediacy and Likelihood:
-When evaluating Immediacy and Likelihood, compare the scenario's date with the current_datetime provided at the bottom of this prompt.
-Use the following logic:
-- If the event is occurring today (same date as current_datetime) → treat as ongoing.
-- If the event is occurring tomorrow or within 24 hours → consider high immediacy (2).
-- If the event occurred yesterday or more than 24 hours ago → likely lower immediacy (0 or 1), depending on whether residual impacts remain.
-- If the event date is in the future (more than 24 hours ahead) → assign Immediacy = 1 unless it is explicitly expected to happen immediately.
-- When date context is absent, use language-based cues (e.g., “ongoing,” “expected,” “possible”) to assign Likelihood and Immediacy as defined in their respective decision trees.
+**Date Comparison Logic for Immediacy and Likelihood (with Timezone Awareness):**  
+- Determine the **local timezone** from the scenario's primary location.  
+- Convert all mentioned dates/times to **local time**, and compare to the current_datetime (UTC).  
+- Apply the following logic:
+  - If the event occurs **today in local time**, treat as **ongoing**
+  - If event occurs **within the next 24 hours**, assign **Immediacy = 2**
+  - If event occurred **yesterday or earlier**, reduce Immediacy to 1 or 0 based on residual effects
+  - If scheduled **more than 24h from now**, assign **Immediacy = 1**
+- If no date or time is mentioned, use language cues (e.g., “ongoing,” “expected,” “possible”) to assign Immediacy and Likelihood accordingly.
 
 Grouping Risks from a Single Root Cause
 Group multiple risks into one entry if all of the following are true:
