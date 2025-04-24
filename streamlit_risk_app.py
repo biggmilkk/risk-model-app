@@ -119,17 +119,17 @@ def calculate_risk_summary(inputs: list[RiskInput], critical_alert: bool=False):
 
 def advice_matrix(score: int) -> dict[str, str]:
     mapping = {
-        0: {"Low": "NA", "Moderate": "NA", "High": "NA"},
-        1: {"Low": "Normal Precautions", "Moderate": "Normal Precautions", "High": "Normal Precautions"},
-        2: {"Low": "Normal Precautions", "Moderate": "Normal Precautions", "High": "Normal Precautions"},
-        3: {"Low": "Normal Precautions", "Moderate": "Normal Precautions", "High": "Normal Precautions"},
-        4: {"Low": "Heightened Vigilance", "Moderate": "Normal Precautions", "High": "Normal Precautions"},
-        5: {"Low": "Heightened Vigilance", "Moderate": "Heightened Vigilance", "High": "Normal Precautions"},
-        6: {"Low": "Heightened Vigilance", "Moderate": "Heightened Vigilance", "High": "Heightened Vigilance"},
-        7: {"Low": "Crisis24 Consultation Recommended", "Moderate": "Heightened Vigilance", "High": "Heightened Vigilance"},
-        8: {"Low": "Crisis24 Consultation Recommended", "Moderate": "Crisis24 Consultation Recommended", "High": "Heightened Vigilance"},
-        9: {"Low": "Crisis24 Proactive Engagement", "Moderate": "Crisis24 Consultation Recommended", "High": "Crisis24 Consultation Recommended"},
-        10: {"Low": "Crisis24 Proactive Engagement", "Moderate": "Crisis24 Proactive Engagement", "High": "Crisis24 Consultation Recommended"}
+        0: {"High": "NA", "Moderate": "NA", "Low": "NA"},
+        1: {"High": "Normal Precautions", "Moderate": "Normal Precautions", "Low": "Normal Precautions"},
+        2: {"High": "Normal Precautions", "Moderate": "Normal Precautions", "Low": "Normal Precautions"},
+        3: {"High": "Normal Precautions", "Moderate": "Normal Precautions", "Low": "Normal Precautions"},
+        4: {"High": "Heightened Vigilance", "Moderate": "Normal Precautions", "Low": "Normal Precautions"},
+        5: {"High": "Heightened Vigilance", "Moderate": "Heightened Vigilance", "Low": "Normal Precautions"},
+        6: {"High": "Heightened Vigilance", "Moderate": "Heightened Vigilance", "Low": "Heightened Vigilance"},
+        7: {"High": "Crisis24 Consultation Recommended", "Moderate": "Heightened Vigilance", "Low": "Heightened Vigilance"},
+        8: {"High": "Crisis24 Consultation Recommended", "Moderate": "Crisis24 Consultation Recommended", "Low": "Heightened Vigilance"},
+        9: {"High": "Crisis24 Proactive Engagement", "Moderate": "Crisis24 Consultation Recommended", "Low": "Crisis24 Consultation Recommended"},
+        10: {"High": "Crisis24 Proactive Engagement", "Moderate": "Crisis24 Proactive Engagement", "Low": "Crisis24 Consultation Recommended"}
     }
     return mapping.get(score, mapping[0])
 
