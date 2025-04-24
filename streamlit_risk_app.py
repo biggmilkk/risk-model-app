@@ -128,8 +128,8 @@ def advice_matrix(score: int) -> dict[str, str]:
         6: {"High": "Heightened Vigilance", "Moderate": "Heightened Vigilance", "Low": "Heightened Vigilance"},
         7: {"High": "Crisis24 Consultation Recommended", "Moderate": "Heightened Vigilance", "Low": "Heightened Vigilance"},
         8: {"High": "Crisis24 Consultation Recommended", "Moderate": "Crisis24 Consultation Recommended", "Low": "Heightened Vigilance"},
-        9: {"High": "Crisis24 Proactive Engagement", "Moderate": "Crisis24 Consultation Recommended", "Low": "Crisis24 Consultation Recommended"},
-        10: {"High": "Crisis24 Proactive Engagement", "Moderate": "Crisis24 Proactive Engagement", "Low": "Crisis24 Consultation Recommended"}
+        9: {"High": "Crisis24 Proactive Engagement", "Moderate": "Crisis24 Consultation Recommended", "Low": "Heightened Vigilance"},
+        10: {"High": "Crisis24 Proactive Engagement", "Moderate": "Crisis24 Consultation Recommended", "Low": "Crisis24 Consultation Recommended"}
     }
     return mapping.get(score, mapping[0])
 
